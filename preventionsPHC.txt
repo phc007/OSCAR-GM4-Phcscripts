@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name     Preventions PHC
-// @version  1
+// @version  1.1
 // @grant    none
+// @namespace Phcscript
 // @include *oscar/oscarPrevention/index.jsp*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js    
@@ -146,8 +147,8 @@ document.body.appendChild(input1);
 {name:"Tuberculosis", value:"Tubersol", manufacture:"Sanofi Pasteur Limited", dose:"0.1", units:"ML", route:"Intradermal", din:"428833"}
   ];
 
-/*
-        function onViewPrevention(url, preventionSelected) {
+
+function onViewPrevention(url, preventionSelected) {
             iframe = document.querySelector('iframe#prevention-preview');
             if (!iframe) {
                 return;
@@ -165,15 +166,14 @@ document.body.appendChild(input1);
                     jQuery(preventionSelected).addClass('active');
                 }
             }
-        }
+}
 
-*/
 jQuery(document).ready(function() {
 
     jQuery("#immunization").autocomplete({  source: tags,  select: function(event, ui) {
 			// ui.item will contain the selected object from the source
       console.log(ui.item.name + " " + ui.item.dose + " din="+ui.item.din + "demo="+params.demographic_no);
-      unsafeWindow.onViewPrevention('AddPreventionData.jsp?prevention='+ui.item.name+'&demographic_no='+params.demographic_no+'&prevResultDesc=', null);
+      onViewPrevention('AddPreventionData.jsp?prevention='+ui.item.name+'&demographic_no='+params.demographic_no+'&prevResultDesc=', null);
       
 
       setTimeout(function () {
@@ -193,24 +193,3 @@ jQuery(document).ready(function() {
         }
     });
 });
-// events to trigger a real change in react
-(function($) {
-
-    $.fn.trigger2 = function(eventName) {
-        return this.each(function() {
-            var el = $(this).get(0);
-            triggerNativeEvent(el, eventName);
-        });
-    };
-
-    function triggerNativeEvent(el, eventName){
-      if (el.fireEvent) { // < IE9
-        (el.fireEvent('on' + eventName));
-      } else {
-        var evt = document.createEvent('Events');
-        evt.initEvent(eventName, true, false);
-        el.dispatchEvent(evt);
-      }
-}
-
-}(jQuery));
