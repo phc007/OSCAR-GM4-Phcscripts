@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           EChart_KeyboardShortcuts AV
 // @namespace      Phcscript
-// @version        1
-// @description Various Echart shortcut buttons (Alt+ p,t,d,c,m,a,r,x,o).
+// @version        1.1
+// @description Various Echart shortcut buttons (Alt+ p,t,d,l,c,m,a,r,x,o).
 // @include        *av/echart*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
@@ -20,6 +20,7 @@ jQuery(document).ready(function() {
     jQuery('[data-rbd-draggable-id="medications"] > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)').html('MEDICATION <u>Rx</u>');
     jQuery('[data-rbd-draggable-id="documents"] > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)').html('D<u>O</u>CUMENTS');
     jQuery('[data-rbd-draggable-id="allergies"] > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)').html('<u>A</u>LLERGY');
+    jQuery("span:contains('New Note')").html('<u>N</u>ew Note');
 	},3000);
 });
 
@@ -63,8 +64,15 @@ document.addEventListener('keydown', function(e) {
       console.log('Alt + O was pressed!'); 
       jQuery('[data-rbd-draggable-id="documents"] > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1)').trigger('click');       
     }
+    if (e.code === 'KeyN' && e.altKey) {
+      console.log('Alt + N was pressed!'); 
+      //jQuery('.primary').trigger('click'); //this is dangerous one 
+      jQuery("div:has(span:contains('New Note'))").trigger('click');
+             
+    }
 
 });
+
 
 
 /*
