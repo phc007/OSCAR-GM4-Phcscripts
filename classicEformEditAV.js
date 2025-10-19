@@ -19,13 +19,7 @@ jQuery.noConflict();
       display: inline-block;
       width: 14px;
       height: 14px;
-      margin-top: 1px;
-      *margin-right: .3em;
-      line-height: 14px;
-      vertical-align: text-top;
       background-image: url("../images/glyphicons-halflings.png");
-      background-position: 14px 14px;
-      background-repeat: no-repeat;
     }
     .icon-edit {
       background-position: -96px -72px;
