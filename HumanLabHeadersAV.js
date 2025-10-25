@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name           Lab Reheader AV
 // @namespace      Phcscript
-// @version        1
+// @version        1.1
 // @description    Replaces Lab Headers with Human readable ones
 // @include        *av/echart*
+// @include        *av/providerinbox/inbox*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
 
@@ -11,23 +12,32 @@
 jQuery.noConflict();
 
 jQuery(document).ready(function() {
-	setTimeout(function(){   
-    nameExchange();    
+	setTimeout(function(){
+   
+    nameExchange();
+    
     jQuery("i.material-icons-outlined.cursor-pointer").mouseup(function() {
-    // Code to be executed when the mouse button is released over the down arrow
+    // Code to be executed when the mouse button is released over the element
       setTimeout(function(){
       	nameExchange();
       },1000);
     });
+
 	},3000);
 });
 
 function nameExchange() {
     jQuery('[data-rbd-draggable-id="labs"]').find("div.word-break-all").each(function() {
-  	// 'this' refers to each descendant div with 'word-break-all' class
+  	// 'this' refers to each descendant div with 'word-break-all'
       jQuery(this).html(processLabName(jQuery(this).text()));
       //console.log(jQuery(this).text());
-		});    
+		});
+    jQuery("div.truncate-row-by-width").each(function() {
+  	// 'this' refers to each descendant div with 'word-break-all'
+      jQuery(this).html(processLabName(jQuery(this).text()));
+      //console.log(jQuery(this).text());
+		});  
+  
 }
 
 function processLabName(strTestName) {
