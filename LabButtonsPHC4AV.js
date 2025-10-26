@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.2
+// @version  1.2.1
 // @namespace Phcsript
 // @grant    none
 // @include *av/providerinbox/inbox*
@@ -93,13 +93,13 @@ function ButtonFunction(str){
 
 const menuContainer = document.createElement('div');
 menuContainer.id = 'myGreasemonkeyButtons';
-menuContainer.setAttribute("style", "font-size:12px;position:fixed;top:8px;left:1120px;");
+menuContainer.setAttribute("style", "font-size:12px; position:fixed;top:8px;left:1120px;");
 
 var input1=document.createElement("input");
 input1.type="button";
 input1.value="Normal";
 input1.addEventListener("click", function() {ButtonFunction("Normal");});
-input1.setAttribute("style", "font-size:12px;padding: 2px; margin-right: 3px;");
+input1.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input1.setAttribute("title", "Normal");
 menuContainer.appendChild(input1);
 
@@ -107,7 +107,7 @@ var input2=document.createElement("input");
 input2.type="button";
 input2.value="Stable";
 input2.addEventListener("click", function() {ButtonFunction("Stable");});
-input2.setAttribute("style", "font-size:12px;padding: 2px; margin-right: 3px;");
+input2.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input2.setAttribute("title", "Stable");
 menuContainer.appendChild(input2);
 
@@ -115,7 +115,7 @@ var input3=document.createElement("input");
 input3.type="button";
 input3.value="Improving";
 input3.addEventListener("click", function() {ButtonFunction("Abnormal but improving");});
-input3.setAttribute("style", "font-size:12px;padding: 2px; margin-right: 3px;");
+input3.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input3.setAttribute("title", "Improving");
 menuContainer.appendChild(input3);
 
@@ -123,7 +123,7 @@ var input4=document.createElement("input");
 input4.type="button";
 input4.value="Partial";
 input4.addEventListener("click", function() {ButtonFunction("Incomplete result");});
-input4.setAttribute("style", "font-size:12px;padding: 2px; margin-right: 3px;");
+input4.setAttribute("style", "font-size:12px ;padding: 2px; margin-right: 3px;");
 input4.setAttribute("title", "Incomplete");
 menuContainer.appendChild(input4);
 
@@ -131,7 +131,7 @@ var input5=document.createElement("input");
 input5.type="button";
 input5.value="Rx";
 input5.addEventListener("click", function() {ButtonFunction("Rx reviewed and request granted");});
-input5.setAttribute("style", "font-size:12px;padding: 2px; margin-right: 3px;");
+input5.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input5.setAttribute("title", "Rx request approved");
 menuContainer.appendChild(input5);
 
@@ -139,7 +139,7 @@ var input6=document.createElement("input");
 input6.type="button";
 input6.value="ER";
 input6.addEventListener("click", function() {ButtonFunction("Hospital Emergency Patient");});
-input6.setAttribute("style", "font-size:12px;padding: 2px; margin-right: 3px;");
+input6.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input6.setAttribute("title", "ER patient");
 menuContainer.appendChild(input6);
 
@@ -147,7 +147,7 @@ var input7=document.createElement("input");
 input7.type="button";
 input7.value="H";
 input7.addEventListener("click", function() {ButtonFunction("Hospital Inpatient");});
-input7.setAttribute("style", "font-size:12px;padding: 2px;");
+input7.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input7.setAttribute("title", "Hospital patient");
 menuContainer.appendChild(input7);
 
@@ -155,7 +155,7 @@ var input8=document.createElement("input");
 input8.type="button";
 input8.value="Consultant";
 input8.addEventListener("click", function() {ButtonFunction("Consultant ordered and followed");});
-input8.setAttribute("style", "font-size:12px;padding: 2px;");
+input8.setAttribute("style", "font-size:12px; padding: 2px;");
 input8.setAttribute("title", "Specialist managed patient");
 menuContainer.appendChild(input8);
 
