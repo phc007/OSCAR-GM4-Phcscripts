@@ -1,13 +1,75 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1
-// @namespace Phcscript
+// @version  1.1
+// @namespace Phcsript
 // @grant    none
 // @include *av/providerinbox/inbox*
-// @require http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
 
 jQuery.noConflict();
+
+
+jQuery(document).ready(function() {
+  	console.log("ready!");
+// events to trigger a real change in react
+(function($) {
+
+    $.fn.trigger2 = function(eventName) {
+        return this.each(function() {
+            var el = $(this).get(0);
+            triggerNativeEvent(el, eventName);
+        });
+    };
+
+    function triggerNativeEvent(el, eventName){
+      if (el.fireEvent) { // < IE9
+        (el.fireEvent('on' + eventName));
+      } else {
+        var evt = document.createEvent('Events');
+        evt.initEvent(eventName, true, false);
+        el.dispatchEvent(evt);
+      }
+}
+
+}(jQuery));  
+              
+});
+
+setTimeout(function(){
+	// initial preview trigger
+  console.log("time");
+  jQuery('tr').on('mouseup', function (){
+    console.log("mouse click");
+    initiate2ndTrigger();
+    accessIframe();
+  })
+
+},5000);
+
+function initiate2ndTrigger(){
+	setTimeout(function(){  
+    jQuery('.left-node, .right-node').on('mouseup', function (){
+      console.log("mouse click 2");
+      accessIframe();
+    }) 
+	},2000);
+}
+
+
+function accessIframe(){
+	setTimeout(function(){
+    	
+    	console.log("accessing iframe");
+			var $iframeContents = jQuery('iframe[title="Preview"]').contents();
+			var $iframeBody = $iframeContents.find("body"); 
+			var $alertwrap = $iframeContents.find('div.alert-wrapper');
+			var $alertbr = $alertwrap.next('br');
+  		$alertbr.remove();      
+	},2000);
+}
+
+
 
 const menuContainer = document.createElement('div');
 menuContainer.id = 'myGreasemonkeyButtons';
@@ -30,8 +92,11 @@ function ButtonFunction1(){
         jQuery('textarea:not(#myId)').trigger2("change");
       setTimeout(function(){
           jQuery('#acknowledge-trigger').click();
+          accessIframe();
+        
       },500);
    },500);
+
 }
 
 var input2=document.createElement("input");
@@ -50,6 +115,7 @@ function ButtonFunction2(){
         jQuery('textarea:not(#myId)').trigger2("change");
       setTimeout(function(){
           jQuery('#acknowledge-trigger').click();
+          accessIframe();
       },500);
    },500);
 }
@@ -70,6 +136,7 @@ function ButtonFunction3(){
         jQuery('textarea:not(#myId)').trigger2("change");
       setTimeout(function(){
           jQuery('#acknowledge-trigger').click();
+          accessIframe();        
       },500);
    },500);
 }
@@ -89,6 +156,7 @@ function ButtonFunction4(){
         jQuery('textarea:not(#myId)').trigger2("change");
       setTimeout(function(){
           jQuery('#acknowledge-trigger').click();
+          accessIframe();        
       },500);
     },500);
 }
@@ -108,6 +176,7 @@ function ButtonFunction5(){
         jQuery('textarea:not(#myId)').trigger2("change");
       setTimeout(function(){
           jQuery('#acknowledge-trigger').click();
+          accessIframe();        
       },500);
     },500);
 }
@@ -127,6 +196,7 @@ function ButtonFunction6(){
         jQuery('textarea:not(#myId)').trigger2("change");
       setTimeout(function(){
           jQuery('#acknowledge-trigger').click();
+          accessIframe();        
       },500);
     },500);
 }
@@ -146,6 +216,7 @@ function ButtonFunction7(){
         jQuery('textarea:not(#myId)').trigger2("change");
       setTimeout(function(){
           jQuery('#acknowledge-trigger').click();
+           accessIframe();       
       },500);
     },500);
 }
@@ -166,30 +237,10 @@ function ButtonFunction8(){
         jQuery('textarea:not(#myId)').trigger2("change");
       setTimeout(function(){
           jQuery('#acknowledge-trigger').click();
+          accessIframe();        
       },500);
     },500);
 }
 // Find a suitable place to insert the menu on the page
 document.body.appendChild(menuContainer);
 
-// events to trigger a real change in react
-(function($) {
-
-    $.fn.trigger2 = function(eventName) {
-        return this.each(function() {
-            var el = $(this).get(0);
-            triggerNativeEvent(el, eventName);
-        });
-    };
-
-    function triggerNativeEvent(el, eventName){
-      if (el.fireEvent) { // < IE9
-        (el.fireEvent('on' + eventName));
-      } else {
-        var evt = document.createEvent('Events');
-        evt.initEvent(eventName, true, false);
-        el.dispatchEvent(evt);
-      }
-}
-
-}(jQuery));
