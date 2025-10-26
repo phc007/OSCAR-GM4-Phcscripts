@@ -1,12 +1,97 @@
 // ==UserScript==
 // @name     Lab Display Macro Menu PHC
-// @version  1
-// @namespace Phcscript
+// @version  1.2
 // @grant    none
 // @include *av/providerinbox/inbox*
-// @require http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
 
+jQuery(document).ready(function() {
+  	console.log("ready!");
+  // events to trigger a real change in react
+  (function($) {
+      $.fn.trigger2 = function(eventName) {
+          return this.each(function() {
+              var el = $(this).get(0);
+              triggerNativeEvent(el, eventName);
+          });
+      };
+      function triggerNativeEvent(el, eventName){
+        if (el.fireEvent) { // < IE9
+          (el.fireEvent('on' + eventName));
+        } else {
+          var evt = document.createEvent('Events');
+          evt.initEvent(eventName, true, false);
+          el.dispatchEvent(evt);
+        }
+  		}
+  }(jQuery));               
+});
+
+function ButtonFunction(str){
+  jQuery('textarea:first').attr("id", "myId");
+    jQuery('#acknowledge-dropdown-trigger').click();
+    setTimeout(function(){
+         jQuery('textarea:not(#myId)').val(str);
+        jQuery('textarea:not(#myId)').trigger2("change");
+      setTimeout(function(){
+          jQuery('#acknowledge-trigger').click();
+          accessIframe();        
+      },500);
+   },500);
+}
+
+
+/* 
+//functions to parse identifiers for more complex macros
+
+setTimeout(function(){
+	// initial preview trigger
+  console.log("time");
+  jQuery('tr').on('mouseup', function (){
+    console.log("mouse click");
+    initiate2ndTrigger();
+    accessIframe();
+  })
+},4000);
+
+function initiate2ndTrigger(){
+	setTimeout(function(){  
+    jQuery('.left-node, .right-node').on('mouseup', function (){
+      console.log("mouse click 2");
+      accessIframe();
+    }) 
+	},2000);
+}
+
+function accessIframe(){
+	setTimeout(function(){   	
+    	var currentIframeUrl = jQuery('iframe[title="Preview"]')[0].contentWindow.location.href;
+    	console.log("accessing iframe "+currentIframeUrl);
+    	var url = new URL(currentIframeUrl);
+    	var params = url.searchParams;
+			var $iframeContents = jQuery('iframe[title="Preview"]').contents();
+    	var iframeHeadContent = $iframeContents.find("head").html();
+    	
+			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo'));
+
+			var $iframeBody = $iframeContents.find("body"); 
+			var $alertwrap = $iframeContents.find('div.alert-wrapper');
+			var $alertbr = $alertwrap.next('br');
+  		$alertbr.remove();      
+	},3000);
+}
+
+function getNoFromString(queryString, key) {
+  const regex = new RegExp(`${key}\\s?=\\s?"([\\d]+)"`,'m');
+  const match = queryString.match(regex);
+  if (match && match[1]) {
+    return match[1]; // The captured group contains the value
+  }
+  return null;
+}
+
+*/
 
 // Create a new div to hold the dropdown
 const menuContainer = document.createElement('div');
@@ -19,8 +104,8 @@ dropdown.id = 'myFunctionDropdown';
 
 // Create options for the dropdown
 const option0 = document.createElement('option');
-option0.value = 'function1';
-option0.textContent = 'Macro';
+option0.value = 'function0';
+option0.textContent = '-Macro-';
 
 const option1 = document.createElement('option');
 option1.value = 'function1';
@@ -72,106 +157,6 @@ menuContainer.appendChild(dropdown);
 document.body.appendChild(menuContainer);
 
 
-// Define the functions
-function ButtonFunction1(){
-  jQuery('textarea:first').attr("id", "myId");
-    //jQuery('textarea:first').val("first");
-    jQuery('#acknowledge-dropdown-trigger').click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val("Normal");
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-      },500);
-   },500);
-}
-
-function ButtonFunction2(){
-  jQuery('textarea:first').attr("id", "myId");
-    //jQuery('textarea:first').val("first");
-    jQuery('#acknowledge-dropdown-trigger').click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val("Stable");
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-      },500);
-   },500);
-}
-
-function ButtonFunction3(){
-  jQuery('textarea:first').attr("id", "myId");
-    //jQuery('textarea:first').val("first");
-    jQuery('#acknowledge-dropdown-trigger').click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val("Improving");
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-      },500);
-   },500);
-}
-
-function ButtonFunction4(){
-  jQuery('textarea:first').attr("id", "myId");
-    jQuery('#acknowledge-dropdown-trigger').click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val("Incomplete");
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-      },500);
-    },500);
-}
-
-function ButtonFunction5(){
-  jQuery('textarea:first').attr("id", "myId");
-    jQuery('#acknowledge-dropdown-trigger').click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val("Rx reviewed and request granted");
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-      },500);
-    },500);
-}
-
-function ButtonFunction6(){
-  jQuery('textarea:first').attr("id", "myId");
-    jQuery('#acknowledge-dropdown-trigger').click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val("Hospital Emergency Patient");
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-      },500);
-    },500);
-}
-
-function ButtonFunction7(){
-  jQuery('textarea:first').attr("id", "myId");
-    jQuery('#acknowledge-dropdown-trigger').click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val("Hospital Inpatient");
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-      },500);
-    },500);
-}
-
-function ButtonFunction8(){
-  jQuery('textarea:first').attr("id", "myId");
-    jQuery('#acknowledge-dropdown-trigger').click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val("Consultant ordered and followed");
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-      },500);
-    },500);
-}
-
 // Get a reference to the dropdown element
 const myFunctionDropdown = document.getElementById('myFunctionDropdown');
 
@@ -180,53 +165,29 @@ myFunctionDropdown.addEventListener('change', function() {
     const selectedFunction = this.value;
 
     if (selectedFunction === 'function1') {
-        ButtonFunction1();
+        ButtonFunction("Normal");
     } else if (selectedFunction === 'function2') {
-        ButtonFunction2();
+        ButtonFunction("Stable");
     } else if (selectedFunction === 'function3') {
-        ButtonFunction3();
+        ButtonFunction("Improving");
     } else if (selectedFunction === 'function4') {
-        ButtonFunction4();
+        ButtonFunction("Incomplete");
     } else if (selectedFunction === 'function5') {
-        ButtonFunction5();
+        ButtonFunction("Rx reviewed and request granted");
     } else if (selectedFunction === 'function6') {
-        ButtonFunction6();
+        ButtonFunction("Hospital Emergency Patient");
     } else if (selectedFunction === 'function7') {
-        ButtonFunction7();
+        ButtonFunction("Hospital Inpatient");
     } else if (selectedFunction === 'function8') {
-        ButtonFunction8();
+        ButtonFunction("Consultant ordered and followed");
     }
    revertSelection();
 });
 
 function revertSelection(){
     const mySelect = document.getElementById("myFunctionDropdown");
-
-    // Set the value of the select element to the value of the desired option
-  setTimeout(function(){
-          mySelect.value = "function1";
+    // Set the value of the select element back to the first option which is just a header
+    setTimeout(function(){
+          mySelect.value = "function0";
       },500);
-
 }
-
-// events to trigger a real change in react
-(function($) {
-
-    $.fn.trigger2 = function(eventName) {
-        return this.each(function() {
-            var el = $(this).get(0);
-            triggerNativeEvent(el, eventName);
-        });
-    };
-
-    function triggerNativeEvent(el, eventName){
-      if (el.fireEvent) { // < IE9
-        (el.fireEvent('on' + eventName));
-      } else {
-        var evt = document.createEvent('Events');
-        evt.initEvent(eventName, true, false);
-        el.dispatchEvent(evt);
-      }
-}
-
-}(jQuery));
