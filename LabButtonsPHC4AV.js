@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.2.1
+// @version  1.2.2
 // @namespace Phcsript
 // @grant    none
 // @include *av/providerinbox/inbox*
@@ -39,7 +39,7 @@ setTimeout(function(){
     initiate2ndTrigger();
     accessIframe();
   })
-},4000);
+},3000);
 
 function initiate2ndTrigger(){
 	setTimeout(function(){  
@@ -58,13 +58,20 @@ function accessIframe(){
     	var params = url.searchParams;
 			var $iframeContents = jQuery('iframe[title="Preview"]').contents();
     	var iframeHeadContent = $iframeContents.find("head").html();
-    	
+    
+ 	// extract information from the iFrame parameters and head content that may be useful for Macros   	
 			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo'));
 
+	// add links to show / hide the raw HL7
 			var $iframeBody = $iframeContents.find("body"); 
+    	var theId = $iframeContents.find("[id^='rawhl7']").attr('id');
+			$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
+
+	// remove <br> from successive alert wraps  
 			var $alertwrap = $iframeContents.find('div.alert-wrapper');
 			var $alertbr = $alertwrap.next('br');
-  		$alertbr.remove();      
+  		$alertbr.remove(); 
+    
 	},3000);
 }
 
@@ -161,4 +168,3 @@ menuContainer.appendChild(input8);
 
 // Find a suitable place to insert the menu on the page
 document.body.appendChild(menuContainer);
-
