@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.2.3
+// @version  1.2.4
 // @namespace Phcscript
-// @grant    none
-// @include *av/providerinbox/inbox*
+// @grant     GM.xmlHttpRequest
+// @include https://app.avaros.ca/av/providerinbox/inbox*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
 
@@ -50,6 +50,9 @@ function initiate2ndTrigger(){
 	},2000);
 }
 
+var demographicNo = "";
+var providerNo = "";
+
 function accessIframe(){
 	setTimeout(function(){   	
     	var currentIframeUrl = jQuery('iframe[title="Preview"]')[0].contentWindow.location.href;
@@ -58,7 +61,11 @@ function accessIframe(){
     	var params = url.searchParams;
 			var $iframeContents = jQuery('iframe[title="Preview"]').contents();
     	var iframeHeadContent = $iframeContents.find("head").html();
-    
+			demographicNo = getNoFromString(iframeHeadContent,'demographicNo');
+    	providerNo = getNoFromString(iframeHeadContent,'providerNo');
+    	if (demographicNo == "") {
+       	jQuery(".demodependent").prop("disabled", true); 
+      }
  	// extract information from the iFrame parameters and head content that may be useful for Macros   	
 			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo') + "  providerNo:" + getNoFromString(iframeHeadContent,'providerNo'));
   //https://app.avaros.ca/av/billing2/invoice/2808?billRegion=ON&appointment_no=0&demographic_name=&demographic_no=2808&providerview=1001&user_no=1001&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider=1001
@@ -102,6 +109,64 @@ function ButtonFunction(str){
    },500);
 }
 
+function onViewPrevention(url, preventionSelected) {
+	iframe = document.querySelector('iframe#prevention-preview');
+	if (!iframe) {
+		return;
+	}
+	jQuery('.prevention-result-item-inner').removeClass('active');
+	if (document.previewUrl != url) {
+		document.previewUrl = url;
+		iframe.src = url;
+		iframe.classList.remove('d-none');
+		jQuery('.section-right').addClass('active');
+		jQuery('#preview-backdrop').removeClass('d-none');
+		if (preventionSelected) {
+			jQuery(preventionSelected).addClass('active');
+		}
+	}
+}
+
+function openWinSetElement(url,el,theval){
+	var newWindow = window.open(url, '_blank', 'width=600,height=400');
+	if (newWindow) { // Check if the window was successfully opened
+		newWindow.onload = function() {
+			// Set the value of an input field in the new window
+			jQuery(el, newWindow.document).val(theval);
+       };
+    
+    
+	} else {
+		alert('Popup blocked! Please allow popups for this site.');
+	}  
+}
+
+function openPrevention(prev){
+  var preventionURL = 'https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=';
+  preventionURL += demographicNo;
+  preventionURL += '&prevention='+prev // pass parameter for prevention greasemonkey
+	var newWindow2 = window.open(preventionURL, '_blank', 'width=600,height=400');
+	if (newWindow2) { // Check if the window was successfully opened
+		
+	} else {
+		alert('Popup blocked! Please allow popups for this site.');
+	}  
+}
+
+function postBilling(bcode){
+  var billingURL = "https://app.avaros.ca/av/billing2/invoice/";
+  billingURL += demographicNo;
+  billingURL += '?billRegion=ON&appointment_no=0&demographic_name=&demographic_no='+demographicNo;
+  billingURL += '&user_no='+providerNo;
+  billingURL += '&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider='+providerNo;
+  billingURL += "&bill="+bcode;  //add a parameter for the billing greasemonkey
+	var newWindow3 = window.open(billingURL, '_blank', 'width=1450,height=450');
+	if (newWindow3) { // Check if the window was successfully opened
+		
+	} else {
+		alert('Popup blocked! Please allow popups for this site.');
+	}  
+}
 
 const menuContainer = document.createElement('div');
 menuContainer.id = 'myGreasemonkeyButtons';
@@ -167,9 +232,27 @@ var input8=document.createElement("input");
 input8.type="button";
 input8.value="Consultant";
 input8.addEventListener("click", function() {ButtonFunction("Consultant ordered and followed");});
-input8.setAttribute("style", "font-size:12px; padding: 2px;");
+input8.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input8.setAttribute("title", "Specialist managed patient");
 menuContainer.appendChild(input8);
+
+var input9=document.createElement("input");
+input9.type="button";
+input9.value="papP";
+input9.addEventListener("click", function() {openPrevention('HPV Screen');});
+input9.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
+input9.setAttribute("title", "HPV Screen Prevention");
+input9.classList.add('demodependent');
+menuContainer.appendChild(input9);
+
+var input10=document.createElement("input");
+input10.type="button";
+input10.value="Pap$";
+input10.addEventListener("click", function() {postBilling("Q011A");});
+input10.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
+input10.setAttribute("title", "HPV Screen billing");
+input10.classList.add('demodependent');
+menuContainer.appendChild(input10);
 
 // Find a suitable place to insert the menu on the page
 document.body.appendChild(menuContainer);
