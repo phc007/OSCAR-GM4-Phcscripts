@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.2.2
-// @namespace Phcsript
+// @version  1.2.3
+// @namespace Phcscript
 // @grant    none
 // @include *av/providerinbox/inbox*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -60,7 +60,11 @@ function accessIframe(){
     	var iframeHeadContent = $iframeContents.find("head").html();
     
  	// extract information from the iFrame parameters and head content that may be useful for Macros   	
-			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo'));
+			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo') + "  providerNo:" + getNoFromString(iframeHeadContent,'providerNo'));
+  //https://app.avaros.ca/av/billing2/invoice/2808?billRegion=ON&appointment_no=0&demographic_name=&demographic_no=2808&providerview=1001&user_no=1001&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider=1001
+  //https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=4714
+  //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?demographic_no=4714&name=PATIENT%2C+NOTA&chart_no=&bFirstDisp=false&messageID=null&doctor_no=1001&remoteFacilityId=
+  //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?updateParent=true&parentAjaxId=tickler&bFirstDisp=false&messageID=null&demographic_no=4714&chart_no=&name=PATIENT%2C+NOTA
 
 	// add links to show / hide the raw HL7
 			var $iframeBody = $iframeContents.find("body"); 
@@ -76,7 +80,7 @@ function accessIframe(){
 }
 
 function getNoFromString(queryString, key) {
-  const regex = new RegExp(`${key}\\s?=\\s?"([\\d]+)"`,'m');
+  const regex = new RegExp(`${key}\\s?=\\s?["']([\\d]+)["']`,'m');
   const match = queryString.match(regex);
   if (match && match[1]) {
     return match[1]; // The captured group contains the value
@@ -86,7 +90,8 @@ function getNoFromString(queryString, key) {
 
 function ButtonFunction(str){
   jQuery('textarea:first').attr("id", "myId");
-    jQuery('#acknowledge-dropdown-trigger').click();
+    //jQuery('#acknowledge-dropdown-trigger').click();
+  	jQuery("span:contains('Acknowledge')").click();
     setTimeout(function(){
          jQuery('textarea:not(#myId)').val(str);
         jQuery('textarea:not(#myId)').trigger2("change");
