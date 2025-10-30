@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.3
+// @version  1.3.1
 // @namespace Phcscript
 // @grant     GM.xmlHttpRequest
 // @include https://app.avaros.ca/av/providerinbox/inbox*
@@ -59,8 +59,8 @@ function openPrevention(prev){
   //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?demographic_no=4714&name=PATIENT%2C+NOTA&chart_no=&bFirstDisp=false&messageID=null&doctor_no=1001&remoteFacilityId=
   //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?updateParent=true&parentAjaxId=tickler&bFirstDisp=false&messageID=null&demographic_no=4714&chart_no=&name=PATIENT%2C+NOTA
 
-function openTickler(tickler){
-  var ticklerURL = 'https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?demographic_no=';
+function openTickler(tickler, adate){
+  var ticklerURL = 'https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?xml_appointment_date='+adate+'&demographic_no=';
   ticklerURL += demographicNo;
   ticklerURL += '&name=' + demographicNo;
   ticklerURL += '&chart_no=&bFirstDisp=false&messageID=null&doctor_no=' + providerNo;
@@ -182,7 +182,13 @@ menuContainer.appendChild(input10);
 var input11=document.createElement("input");
 input11.type="button";
 input11.value="papT";
-input11.addEventListener("click", function() {openTickler('Pap');});
+const today = new Date();
+today.setFullYear(today.getFullYear() + 5);
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, '0');
+const day = String(today.getDate()).padStart(2, '0');
+const futureDateString = `${year}-${month}-${day}`;
+input11.addEventListener("click", function() {openTickler('Pap',futureDateString)}); 
 input11.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input11.setAttribute("title", "Pap Tickler");
 input11.setAttribute("disabled", "");
