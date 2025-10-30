@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.2.4
+// @version  1.3
 // @namespace Phcscript
 // @grant     GM.xmlHttpRequest
 // @include https://app.avaros.ca/av/providerinbox/inbox*
@@ -9,91 +9,6 @@
 
 jQuery.noConflict();
 
-jQuery(document).ready(function() {
-  	console.log("ready!");
-  // events to trigger a real change in react
-  (function($) {
-      $.fn.trigger2 = function(eventName) {
-          return this.each(function() {
-              var el = $(this).get(0);
-              triggerNativeEvent(el, eventName);
-          });
-      };
-      function triggerNativeEvent(el, eventName){
-        if (el.fireEvent) { // < IE9
-          (el.fireEvent('on' + eventName));
-        } else {
-          var evt = document.createEvent('Events');
-          evt.initEvent(eventName, true, false);
-          el.dispatchEvent(evt);
-        }
-  		}
-  }(jQuery));               
-});
-
-setTimeout(function(){
-	// initial preview trigger
-  console.log("time");
-  jQuery('tr').on('mouseup', function (){
-    console.log("mouse click");
-    initiate2ndTrigger();
-    accessIframe();
-  })
-},3000);
-
-function initiate2ndTrigger(){
-	setTimeout(function(){  
-    jQuery('.left-node, .right-node').on('mouseup', function (){
-      console.log("mouse click 2");
-      accessIframe();
-    }) 
-	},2000);
-}
-
-var demographicNo = "";
-var providerNo = "";
-
-function accessIframe(){
-	setTimeout(function(){   	
-    	var currentIframeUrl = jQuery('iframe[title="Preview"]')[0].contentWindow.location.href;
-    	console.log("accessing iframe "+currentIframeUrl);
-    	var url = new URL(currentIframeUrl);
-    	var params = url.searchParams;
-			var $iframeContents = jQuery('iframe[title="Preview"]').contents();
-    	var iframeHeadContent = $iframeContents.find("head").html();
-			demographicNo = getNoFromString(iframeHeadContent,'demographicNo');
-    	providerNo = getNoFromString(iframeHeadContent,'providerNo');
-    	if (demographicNo == "") {
-       	jQuery(".demodependent").prop("disabled", true); 
-      }
- 	// extract information from the iFrame parameters and head content that may be useful for Macros   	
-			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo') + "  providerNo:" + getNoFromString(iframeHeadContent,'providerNo'));
-  //https://app.avaros.ca/av/billing2/invoice/2808?billRegion=ON&appointment_no=0&demographic_name=&demographic_no=2808&providerview=1001&user_no=1001&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider=1001
-  //https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=4714
-  //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?demographic_no=4714&name=PATIENT%2C+NOTA&chart_no=&bFirstDisp=false&messageID=null&doctor_no=1001&remoteFacilityId=
-  //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?updateParent=true&parentAjaxId=tickler&bFirstDisp=false&messageID=null&demographic_no=4714&chart_no=&name=PATIENT%2C+NOTA
-
-	// add links to show / hide the raw HL7
-			var $iframeBody = $iframeContents.find("body"); 
-    	var theId = $iframeContents.find("[id^='rawhl7']").attr('id');
-			$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
-
-	// remove <br> from successive alert wraps  
-			var $alertwrap = $iframeContents.find('div.alert-wrapper');
-			var $alertbr = $alertwrap.next('br');
-  		$alertbr.remove(); 
-    
-	},3000);
-}
-
-function getNoFromString(queryString, key) {
-  const regex = new RegExp(`${key}\\s?=\\s?["']([\\d]+)["']`,'m');
-  const match = queryString.match(regex);
-  if (match && match[1]) {
-    return match[1]; // The captured group contains the value
-  }
-  return null;
-}
 
 function ButtonFunction(str){
   jQuery('textarea:first').attr("id", "myId");
@@ -127,19 +42,7 @@ function onViewPrevention(url, preventionSelected) {
 	}
 }
 
-function openWinSetElement(url,el,theval){
-	var newWindow = window.open(url, '_blank', 'width=600,height=400');
-	if (newWindow) { // Check if the window was successfully opened
-		newWindow.onload = function() {
-			// Set the value of an input field in the new window
-			jQuery(el, newWindow.document).val(theval);
-       };
-    
-    
-	} else {
-		alert('Popup blocked! Please allow popups for this site.');
-	}  
-}
+   //https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=4714
 
 function openPrevention(prev){
   var preventionURL = 'https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=';
@@ -152,7 +55,26 @@ function openPrevention(prev){
 		alert('Popup blocked! Please allow popups for this site.');
 	}  
 }
+	//https://app.avaros.ca/oscar/tickler/ticklerDemoMain.jsp?demoview=25249&parentAjaxId=tickler
+  //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?demographic_no=4714&name=PATIENT%2C+NOTA&chart_no=&bFirstDisp=false&messageID=null&doctor_no=1001&remoteFacilityId=
+  //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?updateParent=true&parentAjaxId=tickler&bFirstDisp=false&messageID=null&demographic_no=4714&chart_no=&name=PATIENT%2C+NOTA
 
+function openTickler(tickler){
+  var ticklerURL = 'https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?demographic_no=';
+  ticklerURL += demographicNo;
+  ticklerURL += '&name=' + demographicNo;
+  ticklerURL += '&chart_no=&bFirstDisp=false&messageID=null&doctor_no=' + providerNo;
+  ticklerURL += '&tickler=' + tickler // pass parameter for tickler greasemonkey
+	var newWindow = window.open(ticklerURL, '_blank', 'width=600,height=800');
+	if (newWindow) { // Check if the window was successfully opened
+		
+	} else {
+		alert('Popup blocked! Please allow popups for this site.');
+	}  
+}
+
+	//https://app.avaros.ca/av/billing2/invoice/2808?billRegion=ON&appointment_no=0&demographic_name=&demographic_no=2808&providerview=1001&user_no=1001&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider=1001
+ 
 function postBilling(bcode){
   var billingURL = "https://app.avaros.ca/av/billing2/invoice/";
   billingURL += demographicNo;
@@ -242,6 +164,7 @@ input9.value="papP";
 input9.addEventListener("click", function() {openPrevention('HPV Screen');});
 input9.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input9.setAttribute("title", "HPV Screen Prevention");
+input9.setAttribute("disabled", "");
 input9.classList.add('demodependent');
 menuContainer.appendChild(input9);
 
@@ -251,8 +174,134 @@ input10.value="Pap$";
 input10.addEventListener("click", function() {postBilling("Q011A");});
 input10.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input10.setAttribute("title", "HPV Screen billing");
+input10.setAttribute("disabled", "");
 input10.classList.add('demodependent');
+input10.classList.add('providerdependent');
 menuContainer.appendChild(input10);
+
+var input11=document.createElement("input");
+input11.type="button";
+input11.value="papT";
+input11.addEventListener("click", function() {openTickler('Pap');});
+input11.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
+input11.setAttribute("title", "Pap Tickler");
+input11.setAttribute("disabled", "");
+input11.classList.add('demodependent');
+input11.classList.add('providerdependent');
+menuContainer.appendChild(input11);
+
+var input12=document.createElement("input");
+input12.type="button";
+input12.value="colonP";
+input12.addEventListener("click", function() {openPrevention('COLONOSCOPY');});
+input12.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
+input12.setAttribute("title", "Colonoscopy Prevention");
+input12.setAttribute("disabled", "");
+input12.classList.add('demodependent');
+menuContainer.appendChild(input12);
+
+var input13=document.createElement("input");
+input13.type="button";
+input13.value="colon$";
+input13.addEventListener("click", function() {postBilling("Q142A");});
+input13.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
+input13.setAttribute("title", "HPV Screen billing");
+input13.setAttribute("disabled", "");
+input13.classList.add('demodependent');
+input13.classList.add('providerdependent');
+menuContainer.appendChild(input13);
 
 // Find a suitable place to insert the menu on the page
 document.body.appendChild(menuContainer);
+
+jQuery(document).ready(function() {
+  	console.log("ready!");
+  // events to trigger a real change in react
+  (function($) {
+      $.fn.trigger2 = function(eventName) {
+          return this.each(function() {
+              var el = $(this).get(0);
+              triggerNativeEvent(el, eventName);
+          });
+      };
+      function triggerNativeEvent(el, eventName){
+        if (el.fireEvent) { // < IE9
+          (el.fireEvent('on' + eventName));
+        } else {
+          var evt = document.createEvent('Events');
+          evt.initEvent(eventName, true, false);
+          el.dispatchEvent(evt);
+        }
+  		}
+  }(jQuery));               
+});
+
+setTimeout(function(){
+	// initial preview trigger
+  console.log("time");
+  jQuery('tr').on('mouseup', function (){
+    console.log("mouse click");
+    initiate2ndTrigger();
+    accessIframe();
+  })
+},3000);
+
+function initiate2ndTrigger(){
+	setTimeout(function(){  
+    jQuery('.left-node, .right-node').on('mouseup', function (){
+      console.log("mouse click 2");
+      accessIframe();
+    }) 
+	},2000);
+}
+
+var demographicNo = "";
+var providerNo = "";
+
+function accessIframe(){
+	setTimeout(function(){   	
+    	var currentIframeUrl = jQuery('iframe[title="Preview"]')[0].contentWindow.location.href;
+    	console.log("accessing iframe "+currentIframeUrl);
+    	var url = new URL(currentIframeUrl);
+    	var params = url.searchParams;
+			var $iframeContents = jQuery('iframe[title="Preview"]').contents();
+    	var iframeHeadContent = $iframeContents.find("head").html();
+
+    // extract information from the iFrame parameters and head content that may be useful for Macros   	
+			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo') + "  providerNo:" + getNoFromString(iframeHeadContent,'providerNo'));
+			demographicNo = getNoFromString(iframeHeadContent,'demographicNo') != "" ? getNoFromString(iframeHeadContent,'demographicNo') : getNoFromString(iframeHeadContent,'demographicID') ;
+    	providerNo = getNoFromString(iframeHeadContent,'providerNo');
+    	if (demographicNo == "") {
+        console.log("no demo here");
+       	jQuery(".demodependent").prop("disabled", true); 
+      } else {
+       	jQuery(".demodependent").prop("disabled", false);  
+      }
+    	if (providerNo == "") {
+        console.log("no provider here");
+       	jQuery(".providerdependent").prop("disabled", true); 
+      } else {
+       	jQuery(".providerdependent").prop("disabled", false); 
+      }
+
+	// add links to show / hide the raw HL7
+			var $iframeBody = $iframeContents.find("body"); 
+    	var theId = $iframeContents.find("[id^='rawhl7']").attr('id');
+			$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
+
+	// remove <br> from successive alert wraps  
+			var $alertwrap = $iframeContents.find('div.alert-wrapper');
+			var $alertbr = $alertwrap.next('br');
+  		$alertbr.remove(); 
+    
+	},3000);
+}
+
+function getNoFromString(queryString, key) {
+  const regex = new RegExp(`${key}\\s?=\\s?["']([\\d]+)["']`,'m');
+  const match = queryString.match(regex);
+  if (match && match[1]) {
+    return match[1]; // The captured group contains the value
+  }
+  return "";
+}
