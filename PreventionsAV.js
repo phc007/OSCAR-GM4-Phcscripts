@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Preventions PHC
-// @version  1.2
+// @version  1.2.1
 // @grant    none
 // @namespace Phcscript
 // @include *oscar/oscarPrevention/index.jsp*
@@ -149,26 +149,29 @@ document.body.appendChild(input1);
 
 
 function onViewPrevention(url, preventionSelected) {
-            iframe = document.querySelector('iframe#prevention-preview');
-            if (!iframe) {
-                return;
-            }
-
-            jQuery('.prevention-result-item-inner').removeClass('active');
-
-            if (document.previewUrl != url) {
-                document.previewUrl = url;
-                iframe.src = url;
-                iframe.classList.remove('d-none');
-                jQuery('.section-right').addClass('active');
-                jQuery('#preview-backdrop').removeClass('d-none');
-                if (preventionSelected) {
-                    jQuery(preventionSelected).addClass('active');
-                }
-            }
+	iframe = document.querySelector('iframe#prevention-preview');
+	if (!iframe) {
+		return;
+	}
+	jQuery('.prevention-result-item-inner').removeClass('active');
+	if (document.previewUrl != url) {
+		document.previewUrl = url;
+		iframe.src = url;
+		iframe.classList.remove('d-none');
+		jQuery('.section-right').addClass('active');
+		jQuery('#preview-backdrop').removeClass('d-none');
+		if (preventionSelected) {
+			jQuery(preventionSelected).addClass('active');
+		}
+	}
 }
 
 jQuery(document).ready(function() {
+  
+  	if (params.prevention){
+      console.log("parameter "+params.prevention);
+    		onViewPrevention('AddPreventionData.jsp?prevention='+params.prevention+'&demographic_no='+params.demographic_no+'&prevResultDesc=', null);  
+    }
 
     jQuery("#immunization").autocomplete({  source: tags,  select: function(event, ui) {
 			// ui.item will contain the selected object from the source
