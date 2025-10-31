@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.3.1
+// @version  1.3.1a
 // @namespace Phcscript
 // @grant     GM.xmlHttpRequest
 // @include https://app.avaros.ca/av/providerinbox/inbox*
-// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js 
+// @require https://gist.githubusercontent.com/BrockA/2625891/raw/9c97aa67ff9c5d56be34a55ad6c18a314e5eb548/waitForKeyElements.js
 // ==/UserScript==
 
-jQuery.noConflict();
+//jQuery.noConflict();
 
 
 function ButtonFunction(str){
@@ -161,6 +162,7 @@ menuContainer.appendChild(input8);
 var input9=document.createElement("input");
 input9.type="button";
 input9.value="papP";
+input9.id="pap";
 input9.addEventListener("click", function() {openPrevention('HPV Screen');});
 input9.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input9.setAttribute("title", "HPV Screen Prevention");
@@ -171,6 +173,7 @@ menuContainer.appendChild(input9);
 var input10=document.createElement("input");
 input10.type="button";
 input10.value="Pap$";
+input10.id="pap2";
 input10.addEventListener("click", function() {postBilling("Q011A");});
 input10.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input10.setAttribute("title", "HPV Screen billing");
@@ -199,6 +202,7 @@ menuContainer.appendChild(input11);
 var input12=document.createElement("input");
 input12.type="button";
 input12.value="colonP";
+input12.id="colonoscopy";
 input12.addEventListener("click", function() {openPrevention('COLONOSCOPY');});
 input12.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input12.setAttribute("title", "Colonoscopy Prevention");
@@ -242,24 +246,9 @@ jQuery(document).ready(function() {
   }(jQuery));               
 });
 
-setTimeout(function(){
-	// initial preview trigger
-  console.log("time");
-  jQuery('tr').on('mouseup', function (){
-    console.log("mouse click");
-    initiate2ndTrigger();
-    accessIframe();
-  })
-},3000);
 
-function initiate2ndTrigger(){
-	setTimeout(function(){  
-    jQuery('.left-node, .right-node').on('mouseup', function (){
-      console.log("mouse click 2");
-      accessIframe();
-    }) 
-	},2000);
-}
+// wait for the body of the iframe is loaded, and reload if the iframe changes
+waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
 
 var demographicNo = "";
 var providerNo = "";
@@ -295,13 +284,31 @@ function accessIframe(){
     	var theId = $iframeContents.find("[id^='rawhl7']").attr('id');
 			$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
 
+	// scan the raw HL7 content for key words reflecting pap psa fit 
+    // different code necessary to detect colonoscopy mammography from nested HRM iframe
+
+    	var elementText = $iframeContents.find("#"+theId).text();
+
+    	if (elementText.includes('Human Papilloma Virus')){
+        jQuery('#pap').css('background-color', 'aquamarine');
+      }
+      if (elementText.includes('Prostate Specific Antigen Monitoring')){
+        jQuery('#psa').css('background-color', 'aquamarine');
+      }
+    	if (elementText.includes('FECAL IMMUNOCHEMICAL TEST')){
+        jQuery('#fit').css('background-color', 'aquamarine');
+      }
+
+
 	// remove <br> from successive alert wraps  
 			var $alertwrap = $iframeContents.find('div.alert-wrapper');
 			var $alertbr = $alertwrap.next('br');
   		$alertbr.remove(); 
     
-	},3000);
+	},300);
 }
+
+
 
 function getNoFromString(queryString, key) {
   const regex = new RegExp(`${key}\\s?=\\s?["']([\\d]+)["']`,'m');
