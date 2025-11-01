@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.6
+// @version  1.7
 // @namespace Phcscript
-// @grant     GM.xmlHttpRequest
+// @grant     none
 // @include https://app.avaros.ca/av/providerinbox/inbox*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js 
 // @require https://gist.githubusercontent.com/BrockA/2625891/raw/9c97aa67ff9c5d56be34a55ad6c18a314e5eb548/waitForKeyElements.js
@@ -133,6 +133,7 @@ menuContainer.appendChild(input5);
 var input6=document.createElement("input");
 input6.type="button";
 input6.value="ER";
+input6.id="er";
 input6.addEventListener("click", function() {ButtonFunction("Hospital Emergency Patient");});
 input6.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input6.setAttribute("title", "ER patient");
@@ -141,7 +142,8 @@ menuContainer.appendChild(input6);
 var input7=document.createElement("input");
 input7.type="button";
 input7.value="H";
-input7.addEventListener("click", function() {ButtonFunction("Hospital Inpatient");});
+input7.id="h";
+input7.addEventListener("click", function() {ButtonFunction("Hospital patient");});
 input7.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input7.setAttribute("title", "Hospital patient");
 menuContainer.appendChild(input7);
