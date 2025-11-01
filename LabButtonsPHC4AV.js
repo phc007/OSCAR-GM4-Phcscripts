@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.3.1a
+// @version  1.4
 // @namespace Phcscript
 // @grant     GM.xmlHttpRequest
 // @include https://app.avaros.ca/av/providerinbox/inbox*
@@ -10,19 +10,32 @@
 
 //jQuery.noConflict();
 
+var demographicNo = "";
+var providerNo = "";
 
 function ButtonFunction(str){
   jQuery('textarea:first').attr("id", "myId");
-    //jQuery('#acknowledge-dropdown-trigger').click();
-  	jQuery("span:contains('Acknowledge')").click();
-    setTimeout(function(){
-         jQuery('textarea:not(#myId)').val(str);
-        jQuery('textarea:not(#myId)').trigger2("change");
-      setTimeout(function(){
-          jQuery('#acknowledge-trigger').click();
-          accessIframe();        
-      },500);
-   },500);
+  jQuery("span:contains('Acknowledge')").click();
+  setTimeout(function(){
+  	jQuery('textarea:not(#myId)').val(str);
+		jQuery('textarea:not(#myId)').trigger2("change");
+		setTimeout(function(){
+			jQuery('#acknowledge-trigger').click();
+			accessIframe();        
+		},500);
+	},500);
+}
+
+function ClickPreventions(prevention){
+  jQuery("span:contains('Preventions')").click();
+  setTimeout(function(){
+    console.log("adding prevention "+prevention);
+		// not working below
+    jQuery(".dropdown-item").attr("aria-selected","true");
+    jQuery("[aria-label='${prevention}']").attr("aria-selected","true");
+    jQuery("[aria-owns='prevention-types-dropdown']").text(prevention);  //update the input
+
+	},2000);
 }
 
 function onViewPrevention(url, preventionSelected) {
@@ -161,9 +174,13 @@ menuContainer.appendChild(input8);
 
 var input9=document.createElement("input");
 input9.type="button";
-input9.value="papP";
+input9.value="PAP";
 input9.id="pap";
-input9.addEventListener("click", function() {openPrevention('HPV Screen');});
+input9.addEventListener("click", function() {
+  openPrevention('HPV Screen');
+	postBilling("Q011A"); //?necessary
+	openTickler('Pap',getFutureDate(5));
+});
 input9.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input9.setAttribute("title", "HPV Screen Prevention");
 input9.setAttribute("disabled", "");
@@ -172,57 +189,88 @@ menuContainer.appendChild(input9);
 
 var input10=document.createElement("input");
 input10.type="button";
-input10.value="Pap$";
-input10.id="pap2";
-input10.addEventListener("click", function() {postBilling("Q011A");});
+input10.value="PSA";
+input10.id="psa";
+input10.addEventListener("click", function() {
+  openPrevention('PSA');
+	openTickler('PSA in 2yr',getFutureDate(2)); //2-4 yr if PSA low and low risk
+});
 input10.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
-input10.setAttribute("title", "HPV Screen billing");
+input10.setAttribute("title", "Prostatic Specific Antigen");
 input10.setAttribute("disabled", "");
 input10.classList.add('demodependent');
-input10.classList.add('providerdependent');
+//input10.classList.add('providerdependent');
 menuContainer.appendChild(input10);
 
 var input11=document.createElement("input");
 input11.type="button";
-input11.value="papT";
-const today = new Date();
-today.setFullYear(today.getFullYear() + 5);
-const year = today.getFullYear();
-const month = String(today.getMonth() + 1).padStart(2, '0');
-const day = String(today.getDate()).padStart(2, '0');
-const futureDateString = `${year}-${month}-${day}`;
-input11.addEventListener("click", function() {openTickler('Pap',futureDateString)}); 
+input11.value="FIT";
+input11.id="fit";
+input11.addEventListener("click", function() {
+  openPrevention('FIT');
+  //postBilling("Q150A"); //?necessary the councilling code
+  postBilling("Q152A"); //Colorectal Cancer Screening Test Completion Fee
+	openTickler('FIT repeat in 2yr',getFutureDate(2));
+}); 
 input11.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
-input11.setAttribute("title", "Pap Tickler");
+input11.setAttribute("title", "Fecal Immunochemical Test");
 input11.setAttribute("disabled", "");
 input11.classList.add('demodependent');
-input11.classList.add('providerdependent');
+//input11.classList.add('providerdependent');
 menuContainer.appendChild(input11);
+
+// the following will be from HRM and will NOT have a demo but will have a provider
 
 var input12=document.createElement("input");
 input12.type="button";
-input12.value="colonP";
+input12.value="Colon";
 input12.id="colonoscopy";
-input12.addEventListener("click", function() {openPrevention('COLONOSCOPY');});
+input12.addEventListener("click", function() {
+  if (demographicNo) { 
+    postBilling("Q142A"); //Colorectal Cancer Screening Test Exclusion code 
+  	openPrevention('COLONOSCOPY');
+  } else {
+    ClickPreventions('COLONOSCOPY');
+  }
+	openTickler('Colonoscopy repeat in 3yr',getFutureDate(3)); // 3, 5, or 10yr PHC fix
+});
 input12.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input12.setAttribute("title", "Colonoscopy Prevention");
 input12.setAttribute("disabled", "");
-input12.classList.add('demodependent');
+input12.classList.add('providerdependent'); //for billing
 menuContainer.appendChild(input12);
 
 var input13=document.createElement("input");
 input13.type="button";
-input13.value="colon$";
-input13.addEventListener("click", function() {postBilling("Q142A");});
+input13.value="Mammo";
+input13.id="mammo";
+input13.addEventListener("click", function() {
+  if (demographicNo) { 
+    postBilling("Q131A"); //?necessary the tracking code 
+  	openPrevention('MAM');
+  } else {
+    ClickPreventions('MAM');
+  }
+	openTickler('Mammo repeat in 2yr',getFutureDate(2));
+});
 input13.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
-input13.setAttribute("title", "HPV Screen billing");
+input13.setAttribute("title", "Mammography Prevention");
 input13.setAttribute("disabled", "");
-input13.classList.add('demodependent');
-input13.classList.add('providerdependent');
+input13.classList.add('providerdependent'); //for billing
 menuContainer.appendChild(input13);
 
 // Find a suitable place to insert the menu on the page
 document.body.appendChild(menuContainer);
+
+function getFutureDate(delta){
+  const today = new Date();
+  today.setFullYear(today.getFullYear() + delta);
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const futureDateString = `${year}-${month}-${day}`;
+  return futureDateString;
+}
 
 jQuery(document).ready(function() {
   	console.log("ready!");
@@ -250,8 +298,7 @@ jQuery(document).ready(function() {
 // wait for the body of the iframe is loaded, and reload if the iframe changes
 waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
 
-var demographicNo = "";
-var providerNo = "";
+
 
 function accessIframe(){
 	setTimeout(function(){   	
@@ -261,6 +308,8 @@ function accessIframe(){
     	var params = url.searchParams;
 			var $iframeContents = jQuery('iframe[title="Preview"]').contents();
     	var iframeHeadContent = $iframeContents.find("head").html();
+    
+    	jQuery(":button").css("background-color", ""); // Removes and resets the inline 'background-color' property
 
     // extract information from the iFrame parameters and head content that may be useful for Macros   	
 			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo') + "  providerNo:" + getNoFromString(iframeHeadContent,'providerNo'));
@@ -285,10 +334,7 @@ function accessIframe(){
 			$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
 
 	// scan the raw HL7 content for key words reflecting pap psa fit 
-    // different code necessary to detect colonoscopy mammography from nested HRM iframe
-
     	var elementText = $iframeContents.find("#"+theId).text();
-
     	if (elementText.includes('Human Papilloma Virus')){
         jQuery('#pap').css('background-color', 'aquamarine');
       }
@@ -299,7 +345,19 @@ function accessIframe(){
         jQuery('#fit').css('background-color', 'aquamarine');
       }
 
-
+  // different code necessary to detect colonoscopy mammography from nested HRM iframe
+      setTimeout(function(){  
+        var $innerIframeContents = $iframeContents.find('.document-preview').contents();
+        var innerElementText = $innerIframeContents.find('div').text();
+        if (elementText.includes('Operative') && elementText.includes('colonoscope')){
+          jQuery('#colonoscopy').css('background-color', 'aquamarine');
+        }
+        if (elementText.includes('Mammography Diagnostic Mammo')){
+          jQuery('#mammo').css('background-color', 'aquamarine');
+        }
+        //console.log(innerElementText);
+      },1000);
+    
 	// remove <br> from successive alert wraps  
 			var $alertwrap = $iframeContents.find('div.alert-wrapper');
 			var $alertbr = $alertwrap.next('br');
@@ -307,8 +365,6 @@ function accessIframe(){
     
 	},300);
 }
-
-
 
 function getNoFromString(queryString, key) {
   const regex = new RegExp(`${key}\\s?=\\s?["']([\\d]+)["']`,'m');
