@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.7
+// @version  1.7.1
 // @namespace Phcscript
 // @grant     none
 // @include https://app.avaros.ca/av/providerinbox/inbox*
@@ -349,10 +349,15 @@ function accessIframe(){
         if ((innerElementText.includes('Operative') || innerElementText.includes('OPERATIVE')) && innerElementText.includes('colonoscope')){
           jQuery("#alert").text("Colonoscopy");
         }
-        if (innerElementText.includes('Mammography Diagnostic Mammo')){
+        if (innerElementText.includes('MAMMOGRAM')){
           jQuery("#alert").text("Mammo");
         }
-
+        if (innerElementText.includes('ED Adult Report')){
+          jQuery('#er').css('background-color', 'aquamarine');
+        }
+        if (innerElementText.includes('ADMISSION NOTE') || innerElementText.includes('DISCHARGE SUMMARY') || innerElementText.includes('Transfer of Care')){
+          jQuery('#h').css('background-color', 'aquamarine');
+        }
       },300);
     
 	// remove <br> from successive alert wraps  
