@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.5
+// @version  1.6
 // @namespace Phcscript
 // @grant     GM.xmlHttpRequest
 // @include https://app.avaros.ca/av/providerinbox/inbox*
@@ -12,6 +12,8 @@
 
 var demographicNo = "";
 var providerNo = "";
+var segmentID = "";
+
 
 function ButtonFunction(str){
   jQuery('textarea:first').attr("id", "myId");
@@ -49,14 +51,14 @@ function openPrevention(prev){
 		alert('Popup blocked! Please allow popups for this site.');
 	}  
 }
-	//https://app.avaros.ca/oscar/tickler/ticklerDemoMain.jsp?demoview=25249&parentAjaxId=tickler
-  //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?demographic_no=4714&name=PATIENT%2C+NOTA&chart_no=&bFirstDisp=false&messageID=null&doctor_no=1001&remoteFacilityId=
-  //https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?updateParent=true&parentAjaxId=tickler&bFirstDisp=false&messageID=null&demographic_no=4714&chart_no=&name=PATIENT%2C+NOTA
+
+  //https://app.avaros.ca/oscar/tickler/ForwardDemographicTickler.do?docType=HL7&docId=989236&demographic_no=802
 
 function openTickler(tickler, adate){
-  var ticklerURL = 'https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?xml_appointment_date='+adate+'&demographic_no=';
-  ticklerURL += demographicNo;
+  
+  var ticklerURL = 'https://app.avaros.ca/oscar/tickler/ForwardDemographicTickler.do?xml_appointment_date='+adate+'&demographic_no=' + demographicNo;
   ticklerURL += '&name=' + demographicNo;
+  if (segmentID) { ticklerURL += '&docType=HL7&docId=' + segmentID; }
   ticklerURL += '&chart_no=&bFirstDisp=false&updateParent=false&messageID=null&doctor_no=' + providerNo;
   ticklerURL += '&tickler=' + tickler // pass parameter for tickler greasemonkey
 	var newWindow = window.open(ticklerURL, '_blank', 'width=600,height=800');
@@ -299,9 +301,12 @@ function accessIframe(){
 
     // extract information from the iFrame parameters and head content that may be useful for Macros   	
 			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo') + "  providerNo:" + getNoFromString(iframeHeadContent,'providerNo'));
+    	
+    	segmentID = params.get("segmentID");
 			demographicNo = getNoFromString(iframeHeadContent,'demographicNo') != "" ? getNoFromString(iframeHeadContent,'demographicNo') : getNoFromString(iframeHeadContent,'demographicID') ;
     	providerNo = getNoFromString(iframeHeadContent,'providerNo');
-    	if (demographicNo == "") {
+
+    if (demographicNo == "") {
         console.log("no demo here");
        	jQuery(".demodependent").prop("disabled", true); 
       } else {
@@ -346,7 +351,7 @@ function accessIframe(){
           jQuery("#alert").text("Mammo");
         }
 
-      },500);
+      },300);
     
 	// remove <br> from successive alert wraps  
 			var $alertwrap = $iframeContents.find('div.alert-wrapper');
