@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.4
+// @version  1.5
 // @namespace Phcscript
 // @grant     GM.xmlHttpRequest
 // @include https://app.avaros.ca/av/providerinbox/inbox*
@@ -21,7 +21,7 @@ function ButtonFunction(str){
 		jQuery('textarea:not(#myId)').trigger2("change");
 		setTimeout(function(){
 			jQuery('#acknowledge-trigger').click();
-			accessIframe();        
+			//accessIframe();        
 		},500);
 	},500);
 }
@@ -29,31 +29,11 @@ function ButtonFunction(str){
 function ClickPreventions(prevention){
   jQuery("span:contains('Preventions')").click();
   setTimeout(function(){
-    console.log("adding prevention "+prevention);
-		// not working below
-    jQuery(".dropdown-item").attr("aria-selected","true");
-    jQuery("[aria-label='${prevention}']").attr("aria-selected","true");
-    jQuery("[aria-owns='prevention-types-dropdown']").text(prevention);  //update the input
-
-	},2000);
-}
-
-function onViewPrevention(url, preventionSelected) {
-	iframe = document.querySelector('iframe#prevention-preview');
-	if (!iframe) {
-		return;
-	}
-	jQuery('.prevention-result-item-inner').removeClass('active');
-	if (document.previewUrl != url) {
-		document.previewUrl = url;
-		iframe.src = url;
-		iframe.classList.remove('d-none');
-		jQuery('.section-right').addClass('active');
-		jQuery('#preview-backdrop').removeClass('d-none');
-		if (preventionSelected) {
-			jQuery(preventionSelected).addClass('active');
-		}
-	}
+  	const textel = document.querySelector('input[placeholder="Search Prevention"]');
+    textel.focus(); // Focus the element before executing the command
+    document.execCommand('insertText', false, prevention);  //ancient and deprecated
+    jQuery('[placeholder="Search Prevention"]').trigger2("change");
+	},200);
 }
 
    //https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=4714
@@ -77,7 +57,7 @@ function openTickler(tickler, adate){
   var ticklerURL = 'https://app.avaros.ca/oscar/tickler/ticklerAdd.jsp?xml_appointment_date='+adate+'&demographic_no=';
   ticklerURL += demographicNo;
   ticklerURL += '&name=' + demographicNo;
-  ticklerURL += '&chart_no=&bFirstDisp=false&messageID=null&doctor_no=' + providerNo;
+  ticklerURL += '&chart_no=&bFirstDisp=false&updateParent=false&messageID=null&doctor_no=' + providerNo;
   ticklerURL += '&tickler=' + tickler // pass parameter for tickler greasemonkey
 	var newWindow = window.open(ticklerURL, '_blank', 'width=600,height=800');
 	if (newWindow) { // Check if the window was successfully opened
@@ -199,7 +179,6 @@ input10.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;"
 input10.setAttribute("title", "Prostatic Specific Antigen");
 input10.setAttribute("disabled", "");
 input10.classList.add('demodependent');
-//input10.classList.add('providerdependent');
 menuContainer.appendChild(input10);
 
 var input11=document.createElement("input");
@@ -216,11 +195,10 @@ input11.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;"
 input11.setAttribute("title", "Fecal Immunochemical Test");
 input11.setAttribute("disabled", "");
 input11.classList.add('demodependent');
-//input11.classList.add('providerdependent');
 menuContainer.appendChild(input11);
 
-// the following will be from HRM and will NOT have a demo but will have a provider
-
+// the following will be from HRM, no real point unless a demo can be found
+/*
 var input12=document.createElement("input");
 input12.type="button";
 input12.value="Colon";
@@ -229,10 +207,11 @@ input12.addEventListener("click", function() {
   if (demographicNo) { 
     postBilling("Q142A"); //Colorectal Cancer Screening Test Exclusion code 
   	openPrevention('COLONOSCOPY');
+		openTickler('Colonoscopy repeat in 3yr',getFutureDate(3)); // 3, 5, or 10yr PHC fix
   } else {
     ClickPreventions('COLONOSCOPY');
   }
-	openTickler('Colonoscopy repeat in 3yr',getFutureDate(3)); // 3, 5, or 10yr PHC fix
+
 });
 input12.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input12.setAttribute("title", "Colonoscopy Prevention");
@@ -248,16 +227,25 @@ input13.addEventListener("click", function() {
   if (demographicNo) { 
     postBilling("Q131A"); //?necessary the tracking code 
   	openPrevention('MAM');
+    openTickler('Mammo repeat in 2yr',getFutureDate(2));
   } else {
     ClickPreventions('MAM');
-  }
-	openTickler('Mammo repeat in 2yr',getFutureDate(2));
+  }	
 });
 input13.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input13.setAttribute("title", "Mammography Prevention");
 input13.setAttribute("disabled", "");
 input13.classList.add('providerdependent'); //for billing
+input11.classList.add('demodependent'); //for prevention billing and tickler
 menuContainer.appendChild(input13);
+
+*/
+
+var span1=document.createElement("span");
+span1.id="alert";
+span1.classList.add('alert');
+span1.setAttribute("style", "color: red;");
+menuContainer.appendChild(span1);
 
 // Find a suitable place to insert the menu on the page
 document.body.appendChild(menuContainer);
@@ -294,11 +282,8 @@ jQuery(document).ready(function() {
   }(jQuery));               
 });
 
-
 // wait for the body of the iframe is loaded, and reload if the iframe changes
 waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
-
-
 
 function accessIframe(){
 	setTimeout(function(){   	
@@ -310,6 +295,7 @@ function accessIframe(){
     	var iframeHeadContent = $iframeContents.find("head").html();
     
     	jQuery(":button").css("background-color", ""); // Removes and resets the inline 'background-color' property
+    	jQuery("#alert").text("");
 
     // extract information from the iFrame parameters and head content that may be useful for Macros   	
 			console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo') + "  providerNo:" + getNoFromString(iframeHeadContent,'providerNo'));
@@ -334,8 +320,10 @@ function accessIframe(){
 			$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
 
 	// scan the raw HL7 content for key words reflecting pap psa fit 
+
     	var elementText = $iframeContents.find("#"+theId).text();
-    	if (elementText.includes('Human Papilloma Virus')){
+
+    	if (elementText.includes('Human Papilloma Virus') || elementText.includes('HEACWO')){  // NB .includes is case sensitive
         jQuery('#pap').css('background-color', 'aquamarine');
       }
       if (elementText.includes('Prostate Specific Antigen Monitoring')){
@@ -346,17 +334,19 @@ function accessIframe(){
       }
 
   // different code necessary to detect colonoscopy mammography from nested HRM iframe
-      setTimeout(function(){  
+      setTimeout(function(){ 
+        
         var $innerIframeContents = $iframeContents.find('.document-preview').contents();
         var innerElementText = $innerIframeContents.find('div').text();
-        if (elementText.includes('Operative') && elementText.includes('colonoscope')){
-          jQuery('#colonoscopy').css('background-color', 'aquamarine');
+
+        if ((innerElementText.includes('Operative') || innerElementText.includes('OPERATIVE')) && innerElementText.includes('colonoscope')){
+          jQuery("#alert").text("Colonoscopy");
         }
-        if (elementText.includes('Mammography Diagnostic Mammo')){
-          jQuery('#mammo').css('background-color', 'aquamarine');
+        if (innerElementText.includes('Mammography Diagnostic Mammo')){
+          jQuery("#alert").text("Mammo");
         }
-        //console.log(innerElementText);
-      },1000);
+
+      },500);
     
 	// remove <br> from successive alert wraps  
 			var $alertwrap = $iframeContents.find('div.alert-wrapper');
