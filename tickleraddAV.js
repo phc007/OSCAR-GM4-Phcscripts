@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name     Ticklers AV PHC 
-// @version  1.2
+// @version  1.3
 // @grant    none
 // @namespace Phcscript
-// @include */oscar/tickler/ticklerAdd.jsp*
+// @include */oscar/tickler/*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
 
