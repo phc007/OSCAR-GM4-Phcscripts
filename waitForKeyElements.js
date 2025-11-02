@@ -34,9 +34,9 @@ function waitForKeyElements (
     var targetNodes, btargetsFound;
 
     if (typeof iframeSelector == "undefined")
-        targetNodes     = $(selectorTxt);
+        targetNodes     = jQuery(selectorTxt);
     else
-        targetNodes     = $(iframeSelector).contents ()
+        targetNodes     = jQuery(iframeSelector).contents ()
                                            .find (selectorTxt);
 
     if (targetNodes  &&  targetNodes.length > 0) {
@@ -45,7 +45,7 @@ function waitForKeyElements (
             are new.
         */
         targetNodes.each ( function () {
-            var jThis        = $(this);
+            var jThis        = jQuery(this);
             var alreadyFound = jThis.data ('alreadyFound')  ||  false;
 
             if (!alreadyFound) {
