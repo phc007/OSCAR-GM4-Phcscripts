@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Preventions PHC
-// @version  1.2.1
+// @version  1.2.2
 // @grant    none
 // @namespace Phcscript
 // @include *oscar/oscarPrevention/index.jsp*
@@ -22,34 +22,33 @@ if (location.search) {
 }
 console.log(params);
 
+(function() {
+	'use strict';
 
-    (function() {
-        'use strict';
+	const css = `
+    .ui-menu {
+         list-style:none;
+         padding:2px;
+         margin:0;
+         display:block;
+         outline:0 
+    }
+     .ui-menu .ui-menu {
+         margin-top:-3px;
+         position:absolute 
+    }
+     .ui-menu .ui-menu-item {
+         margin:0;
+         padding:0;
+         width:100%;
+         background-color:white 
+    }
+	`;
 
-        const css = `
-						.ui-menu {
-              list-style:none;
-              padding:2px;
-              margin:0;
-              display:block;
-              outline:0
-            }
-            .ui-menu .ui-menu {
-              margin-top:-3px;
-              position:absolute
-            }
-            .ui-menu .ui-menu-item {
-              margin:0;
-              padding:0;
-              width:100%;
-              background-color:white
-            }
-        `;
-
-        const styleElement = document.createElement('style');
-        styleElement.textContent = css;
-        document.head.appendChild(styleElement);
-    })();
+	const styleElement = document.createElement('style');
+	styleElement.textContent = css;
+	document.head.appendChild(styleElement);
+})();
 
 //========Input============
 var input1=document.createElement("input");
@@ -57,11 +56,9 @@ input1.type="text";
 input1.setAttribute("style", "position: absolute; left: 380px; top: 10px; width: 300px; font-size:12px; padding: 2px; margin-right: 3px;");
 input1.setAttribute("id","immunization");
 input1.setAttribute("placeholder","pick brand");
-
-// Find a suitable place to insert on the page
 document.body.appendChild(input1);
 
-	var tags = [
+var tags = [
 {name:"OtherA", value:"IXCHIQ not less than 3.0 log10 TCID50 per 0.5 milliliter powder for solution for injection", manufacture:"Valneva Austria GmbH", dose:"0.5", units:"mL", route:"IM", din:"2548984"},
 {name:"Chol-Ecol-O", value:"DUKORAL oral suspension", manufacture:"Valneva Sweden AB", dose:"", units:"DOSE", route:"PO", din:"2247208"},
 {name:"CHOLERA", value:"VAXCHORA 400000000 to 2000000000 colony forming units per sachet powder for oral suspension", manufacture:"Bavarian Nordic AS", dose:"", units:"DOSE", route:"PO", din:"2538164"},
@@ -147,7 +144,6 @@ document.body.appendChild(input1);
 {name:"Tuberculosis", value:"Tubersol", manufacture:"Sanofi Pasteur Limited", dose:"0.1", units:"mL", route:"Intradermal", din:"428833"}
   ];
 
-
 function onViewPrevention(url, preventionSelected) {
 	iframe = document.querySelector('iframe#prevention-preview');
 	if (!iframe) {
@@ -176,23 +172,18 @@ jQuery(document).ready(function() {
     jQuery("#immunization").autocomplete({  source: tags,  select: function(event, ui) {
 			// ui.item will contain the selected object from the source
       console.log(ui.item.name + " " + ui.item.dose + " din="+ui.item.din + "demo="+params.demographic_no);
-      onViewPrevention('AddPreventionData.jsp?prevention='+ui.item.name+'&demographic_no='+params.demographic_no+'&prevResultDesc=', null);
-      
+      onViewPrevention('AddPreventionData.jsp?prevention='+ui.item.name+'&demographic_no='+params.demographic_no+'&prevResultDesc=', null);    
 
       setTimeout(function () {
 				const iframe = document.querySelector('iframe#prevention-preview');
       	const iframeDoc = iframe.contentDocument;
-				//var iframeContent = jQuery('#prevention-preview').contents();
-
       	iframeDoc.getElementsByName('name')[0].value=ui.item.value;
-        
-        //jQuery(iframeContent.find("[name='name']")).trigger2("change");
         iframeDoc.getElementById('DIN').value=ui.item.din;
         iframeDoc.getElementsByName('route')[0].value=ui.item.route;
         iframeDoc.getElementsByName('dose')[0].value=ui.item.dose + " " + ui.item.units;
         iframeDoc.getElementById('manufacture').value=ui.item.manufacture;
-    }, 1000);
+    	}, 1000);
 
-        }
+      }
     });
 });
