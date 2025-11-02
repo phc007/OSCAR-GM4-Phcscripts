@@ -1,44 +1,37 @@
 // ==UserScript==
 // @name           Lab Reheader AV
 // @namespace      Phcscript
-// @version        1.1
+// @version        2
 // @description    Replaces Lab Headers with Human readable ones
 // @include        *av/echart*
 // @include        *av/providerinbox/inbox*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
+// @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
 // ==/UserScript==
-
 
 jQuery.noConflict();
 
-jQuery(document).ready(function() {
-	setTimeout(function(){
-   
-    nameExchange();
-    
-    jQuery("i.material-icons-outlined.cursor-pointer").mouseup(function() {
+function startIt() {
+	nameExchange();
+	jQuery("i.material-icons-outlined.cursor-pointer").mouseup(function() {
+    console.log("mouseup");
     // Code to be executed when the mouse button is released over the element
-      setTimeout(function(){
+		setTimeout(function(){
       	nameExchange();
-      },1000);
-    });
-
-	},3000);
-});
+		},1000);
+	});
+}
 
 function nameExchange() {
+  console.log("nameExchange");
     jQuery('[data-rbd-draggable-id="labs"]').find("div.word-break-all").each(function() {
   	// 'this' refers to each descendant div with 'word-break-all'
       jQuery(this).html(processLabName(jQuery(this).text()));
-      //console.log(jQuery(this).text());
 		});
-    jQuery("div.truncate-row-by-width").each(function() {
-  	// 'this' refers to each descendant div with 'word-break-all'
-      jQuery(this).html(processLabName(jQuery(this).text()));
-      //console.log(jQuery(this).text());
-		});  
-  
 }
+
+// recurrently scan for new elements and fire nameExchange when found
+waitForKeyElements("[data-rbd-draggable-id='labs'] div.word-break-all", startIt);
 
 function processLabName(strTestName) {
 	theNames=strTestName.split('/');
@@ -52,15 +45,14 @@ function processLabName(strTestName) {
   } else {
   	return renameTheLab(strTestName); 
   }
- 
 }
 
 function renameTheLab(strOldName){
 	var strNewName=strOldName;
 	switch(strOldName)
 	{
-		case 'HAEM1':
-			strNewName='CBC';
+		case 'HAEM1':  // user unfriendly name
+			strNewName='CBC';  // user friendly alternative
 			break;
 		case 'HAEM3':
 			strNewName='INR';
@@ -119,7 +111,7 @@ function renameTheLab(strOldName){
 			strNewName='ETOH';
 			break;
 		case 'CHEM25':
-			strNewName='FOBT';
+			strNewName='FIT';
 			break;
 		case 'CHEM28':
 			strNewName='PTH';
@@ -127,17 +119,15 @@ function renameTheLab(strOldName){
 		case 'MICRO3':
 			strNewName='UCUL';
 			break;
+		case 'MICRO3.5':
+			strNewName='GC/CHLA';
+			break;
 		case 'MICRO11':
 			strNewName='Fungus';
 			break;
 		case 'REFER2':
 			strNewName='HepHIVSer';
 			break;
-
-		//Use an uncommentted copy of the following 3 lines for each test name you want to map
-		//case 'USER_UNFRIENDLY_TEST_NAME':
-		//strNewName='USER_FRIENDLY_TEST_NAME';
-		//break;
 		default:
 			break;
 	}
