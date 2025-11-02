@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.7.1
+// @version  1.7.2
 // @namespace Phcscript
 // @grant     none
 // @include https://app.avaros.ca/av/providerinbox/inbox*
@@ -14,7 +14,7 @@ var demographicNo = "";
 var providerNo = "";
 var segmentID = "";
 
-
+	// this can help deal with react not noticing when the DOM has been changed while commenting and acknowledging
 function ButtonFunction(str){
   jQuery('textarea:first').attr("id", "myId");
   jQuery("span:contains('Acknowledge')").click();
@@ -28,12 +28,14 @@ function ButtonFunction(str){
 	},500);
 }
 
+	// this uses the preventions button that is on page and internally linked to the demographic
+
 function ClickPreventions(prevention){
   jQuery("span:contains('Preventions')").click();
   setTimeout(function(){
   	const textel = document.querySelector('input[placeholder="Search Prevention"]');
-    textel.focus(); // Focus the element before executing the command
-    document.execCommand('insertText', false, prevention);  //ancient and deprecated
+    textel.focus(); // The window must be the top-level browsing context ie primary and the element focused executing the command.  
+    document.execCommand('insertText', false, prevention);  //ancient and still works
     jQuery('[placeholder="Search Prevention"]').trigger2("change");
 	},200);
 }
@@ -44,9 +46,8 @@ function openPrevention(prev){
   var preventionURL = 'https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=';
   preventionURL += demographicNo;
   preventionURL += '&prevention='+prev // pass parameter for prevention greasemonkey
-	var newWindow2 = window.open(preventionURL, '_blank', 'width=600,height=400');
-	if (newWindow2) { // Check if the window was successfully opened
-		
+	var newWindow = window.open(preventionURL, '_blank', 'width=600,height=400');
+	if (newWindow) { // Check if the window was successfully opened		
 	} else {
 		alert('Popup blocked! Please allow popups for this site.');
 	}  
@@ -54,16 +55,14 @@ function openPrevention(prev){
 
   //https://app.avaros.ca/oscar/tickler/ForwardDemographicTickler.do?docType=HL7&docId=989236&demographic_no=802
 
-function openTickler(tickler, adate){
-  
+function openTickler(tickler, adate){ 
   var ticklerURL = 'https://app.avaros.ca/oscar/tickler/ForwardDemographicTickler.do?xml_appointment_date='+adate+'&demographic_no=' + demographicNo;
   ticklerURL += '&name=' + demographicNo;
   if (segmentID) { ticklerURL += '&docType=HL7&docId=' + segmentID; }
   ticklerURL += '&chart_no=&bFirstDisp=false&updateParent=false&messageID=null&doctor_no=' + providerNo;
   ticklerURL += '&tickler=' + tickler // pass parameter for tickler greasemonkey
 	var newWindow = window.open(ticklerURL, '_blank', 'width=600,height=800');
-	if (newWindow) { // Check if the window was successfully opened
-		
+	if (newWindow) { // Check if the window was successfully opened		
 	} else {
 		alert('Popup blocked! Please allow popups for this site.');
 	}  
@@ -78,13 +77,14 @@ function postBilling(bcode){
   billingURL += '&user_no='+providerNo;
   billingURL += '&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider='+providerNo;
   billingURL += "&bill="+bcode;  //add a parameter for the billing greasemonkey
-	var newWindow3 = window.open(billingURL, '_blank', 'width=1450,height=450');
-	if (newWindow3) { // Check if the window was successfully opened
-		
+	var newWindow = window.open(billingURL, '_blank', 'width=1450,height=450');
+	if (newWindow) { // Check if the window was successfully opened	
 	} else {
 		alert('Popup blocked! Please allow popups for this site.');
 	}  
 }
+
+// build a menu of buttons
 
 const menuContainer = document.createElement('div');
 menuContainer.id = 'myGreasemonkeyButtons';
@@ -161,9 +161,10 @@ input9.type="button";
 input9.value="PAP";
 input9.id="pap";
 input9.addEventListener("click", function() {
+  // important billing has to be last in the list to to ensure its the top window.  
   openPrevention('HPV Screen');
-	postBilling("Q011A"); //?necessary
-	openTickler('Pap',getFutureDate(5));
+  openTickler('Pap',getFutureDate(5));
+	postBilling("Q011A"); //The pap Qcode may not be necessary as the lab's billing will notify the ministry
 });
 input9.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input9.setAttribute("title", "HPV Screen Prevention");
@@ -191,9 +192,8 @@ input11.value="FIT";
 input11.id="fit";
 input11.addEventListener("click", function() {
   openPrevention('FIT');
-  //postBilling("Q150A"); //?necessary the councilling code
-  postBilling("Q152A"); //Colorectal Cancer Screening Test Completion Fee
 	openTickler('FIT repeat in 2yr',getFutureDate(2));
+  postBilling("Q152A"); //Colorectal Cancer Screening Test Completion Fee
 }); 
 input11.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input11.setAttribute("title", "Fecal Immunochemical Test");
@@ -254,6 +254,7 @@ menuContainer.appendChild(span1);
 // Find a suitable place to insert the menu on the page
 document.body.appendChild(menuContainer);
 
+// utility to set a date string so many years in the future
 function getFutureDate(delta){
   const today = new Date();
   today.setFullYear(today.getFullYear() + delta);
@@ -266,6 +267,7 @@ function getFutureDate(delta){
 
 jQuery(document).ready(function() {
   	console.log("ready!");
+  
   // events to trigger a real change in react
   (function($) {
       $.fn.trigger2 = function(eventName) {
@@ -275,15 +277,12 @@ jQuery(document).ready(function() {
           });
       };
       function triggerNativeEvent(el, eventName){
-        if (el.fireEvent) { // < IE9
-          (el.fireEvent('on' + eventName));
-        } else {
           var evt = document.createEvent('Events');
           evt.initEvent(eventName, true, false);
           el.dispatchEvent(evt);
-        }
   		}
-  }(jQuery));               
+  }(jQuery)); 
+  
 });
 
 // wait for the body of the iframe is loaded, and reload if the iframe changes
@@ -308,7 +307,7 @@ function accessIframe(){
 			demographicNo = getNoFromString(iframeHeadContent,'demographicNo') != "" ? getNoFromString(iframeHeadContent,'demographicNo') : getNoFromString(iframeHeadContent,'demographicID') ;
     	providerNo = getNoFromString(iframeHeadContent,'providerNo');
 
-    if (demographicNo == "") {
+    	if (demographicNo == "") {
         console.log("no demo here");
        	jQuery(".demodependent").prop("disabled", true); 
       } else {
@@ -324,12 +323,12 @@ function accessIframe(){
 	// add links to show / hide the raw HL7
 			var $iframeBody = $iframeContents.find("body"); 
     	var theId = $iframeContents.find("[id^='rawhl7']").attr('id');
-			$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
-
+    	if (theId){
+				$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
+      }
+    
 	// scan the raw HL7 content for key words reflecting pap psa fit 
-
     	var elementText = $iframeContents.find("#"+theId).text();
-
     	if (elementText.includes('Human Papilloma Virus') || elementText.includes('HEACWO')){  // NB .includes is case sensitive
         jQuery('#pap').css('background-color', 'aquamarine');
       }
@@ -341,11 +340,9 @@ function accessIframe(){
       }
 
   // different code necessary to detect colonoscopy mammography from nested HRM iframe
-      setTimeout(function(){ 
-        
+      setTimeout(function(){         
         var $innerIframeContents = $iframeContents.find('.document-preview').contents();
         var innerElementText = $innerIframeContents.find('div').text();
-
         if ((innerElementText.includes('Operative') || innerElementText.includes('OPERATIVE')) && innerElementText.includes('colonoscope')){
           jQuery("#alert").text("Colonoscopy");
         }
