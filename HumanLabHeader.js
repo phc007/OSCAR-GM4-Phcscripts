@@ -1,35 +1,34 @@
 // ==UserScript==
 // @name           Lab Reheader
 // @namespace      Phcscript
-// @version        1
-// @description    Replaces Lab Headers with Human readable ones in OSCAR and many forks
+// @version        2
+// @description    Replaces Lab Headers with Human readable ones
 // @include        *oscar/casemgmt/forward.jsp*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
+// @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
 // ==/UserScript==
 
 
 jQuery.noConflict();
 
-jQuery(document).ready(function() {
-	setTimeout(function(){
-   
-    nameExchange();
-    
-    jQuery("#imglabs5").mouseup(function() {
+function startIt() {
+	nameExchange();
+	jQuery("#imglabs5").mouseup(function() {
+    console.log("mouseup");
     // Code to be executed when the mouse button is released over the element
-      setTimeout(function(){
+		setTimeout(function(){
       	nameExchange();
-      },3000);
-    });
+		},1000);
+	});
+}
 
-	},3000);
-});
+// wait for ajax load before parsing
+waitForKeyElements("#labslist a.links", startIt);
 
 function nameExchange() {
     jQuery("#labslist a.links").each(function() {
       jQuery(this).html( processLabName(jQuery(this).html()) );
-		});
-  
+		}); 
 }
 
 function processLabName(strTestName) {
@@ -43,8 +42,7 @@ function processLabName(strTestName) {
     return thePhrase;
   } else {
   	return renameTheLab(strTestName); 
-  }
- 
+  } 
 }
 
 function renameTheLab(strOldName){
@@ -119,17 +117,15 @@ function renameTheLab(strOldName){
 		case 'MICRO3':
 			strNewName='UCUL';
 			break;
+		case 'MICRO3.5':
+			strNewName='GC/CHLA';
+			break;
 		case 'MICRO11':
 			strNewName='Fungus';
 			break;
 		case 'REFER2':
 			strNewName='HepHIVSer';
 			break;
-
-		//Use an uncommentted copy of the following 3 lines for each test name you want to map
-		//case 'USER_UNFRIENDLY_TEST_NAME':
-		//strNewName='USER_FRIENDLY_TEST_NAME';
-		//break;
 		default:
 			break;
 	}
