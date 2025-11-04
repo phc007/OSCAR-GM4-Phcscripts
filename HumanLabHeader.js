@@ -1,9 +1,12 @@
 // ==UserScript==
 // @name           Lab Reheader
 // @namespace      Phcscript
-// @version        2
+// @version        2.5
 // @description    Replaces Lab Headers with Human readable ones
-// @include        *oscar/casemgmt/forward.jsp*
+// @include        */casemgmt/forward.jsp*
+// @include        */oscarEncounter/oscarConsultationRequest/attachConsultation2.jsp*
+// @include        */oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp*
+// @include        */oscarEncounter/ViewRequest.do*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
 // ==/UserScript==
@@ -20,15 +23,33 @@ function startIt() {
       	nameExchange();
 		},1000);
 	});
+ 	jQuery("#selectAlllab").mouseup(function() {
+    console.log("mouseup");
+    // Code to be executed when the mouse button is released over the element
+		setTimeout(function(){
+      	nameExchange();
+		},1000);
+	});
 }
+
 
 // wait for ajax load before parsing
 waitForKeyElements("#labslist a.links", startIt);
 
+// wait for ajax load before parsing
+waitForKeyElements(".lab", startIt);
+
+
 function nameExchange() {
     jQuery("#labslist a.links").each(function() {
       jQuery(this).html( processLabName(jQuery(this).html()) );
+		});
+    jQuery(".text").each(function() {
+      jQuery(this).html( processLabName(jQuery(this).html()) );
 		}); 
+    jQuery("li.lab").each(function() {
+      jQuery(this).html( processLabName3(jQuery(this).html()) );
+		});
 }
 
 function processLabName(strTestName) {
@@ -37,6 +58,20 @@ function processLabName(strTestName) {
 		var thePhrase=renameTheLab(theNames[0]);
 		for(var name_id=1; name_id < theNames.length; name_id++) {
 				thePhrase+='/';
+				thePhrase+=renameTheLab(theNames[name_id]);			
+			}
+    return thePhrase;
+  } else {
+  	return renameTheLab(strTestName); 
+  } 
+}
+
+function processLabName3(strTestName) {
+	theNames=strTestName.split(' ');
+	if(theNames.length>1)	{ 
+		var thePhrase=renameTheLab(theNames[0]);
+		for(var name_id=1; name_id < theNames.length; name_id++) {
+				thePhrase+=' ';
 				thePhrase+=renameTheLab(theNames[name_id]);			
 			}
     return thePhrase;
