@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name           Lab Reheader
 // @namespace      Phcscript
-// @version        2.5
+// @version        2.6
 // @description    Replaces Lab Headers with Human readable ones
 // @include        */casemgmt/forward.jsp*
 // @include        */oscarEncounter/oscarConsultationRequest/attachConsultation2.jsp*
 // @include        */oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp*
 // @include        */oscarEncounter/ViewRequest.do*
+// @include        */dms/inboxManage.do*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
 // ==/UserScript==
@@ -16,6 +17,7 @@ jQuery.noConflict();
 
 function startIt() {
 	nameExchange();
+  // Trigger for eChart down button
 	jQuery("#imglabs5").mouseup(function() {
     console.log("mouseup");
     // Code to be executed when the mouse button is released over the element
@@ -23,7 +25,16 @@ function startIt() {
       	nameExchange();
 		},1000);
 	});
+  // Trigger for consultation attachements OSCAR
  	jQuery("#selectAlllab").mouseup(function() {
+    console.log("mouseup");
+    // Code to be executed when the mouse button is released over the element
+		setTimeout(function(){
+      	nameExchange();
+		},1000);
+	});
+  // Trigger for OSCAR inbox
+ 	jQuery("#summaryView tr td").mouseup(function() {
     console.log("mouseup");
     // Code to be executed when the mouse button is released over the element
 		setTimeout(function(){
@@ -33,22 +44,27 @@ function startIt() {
 }
 
 
-// wait for ajax load before parsing
+// wait for ajax load before parsing eChart (OSCAR, OpenO, Well)
 waitForKeyElements("#labslist a.links", startIt);
 
-// wait for ajax load before parsing
+// wait for ajax load before parsing consultation requests (OSCAR)
 waitForKeyElements(".lab", startIt);
 
+// wait for ajax load before parsing OSCAR Inbox
+waitForKeyElements("#summaryView", startIt);
 
 function nameExchange() {
-    jQuery("#labslist a.links").each(function() {
+    jQuery("#labslist a.links").each(function() {  //eChart
       jQuery(this).html( processLabName(jQuery(this).html()) );
 		});
-    jQuery(".text").each(function() {
+    jQuery(".text").each(function() {  // OSCAR
       jQuery(this).html( processLabName(jQuery(this).html()) );
 		}); 
-    jQuery("li.lab").each(function() {
+    jQuery("li.lab").each(function() {  // OSCAR consults
       jQuery(this).html( processLabName3(jQuery(this).html()) );
+		});
+    jQuery("#summaryView tr td:nth-child(8)").each(function() {  // OSCAR inbox
+      jQuery(this).html( processLabName(jQuery(this).html()) );
 		});
 }
 
