@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Lab Reheader
 // @namespace      Phcscript
-// @version        2.7
+// @version        2.7.1
 // @description    Replaces Lab Headers with Human readable ones
 // @include        */casemgmt/forward.jsp*
 // @include        */oscarEncounter/oscarConsultationRequest/attachConsultation2.jsp*
@@ -185,6 +185,9 @@ function renameTheLab(strOldName){
 			break;
 		case 'REFER2':
 			strNewName='HepHIVSer';
+			break;
+		case 'CARDIOPDF':
+			strNewName='ECG';
 			break;
 		default:
 			break;
