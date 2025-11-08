@@ -139,11 +139,11 @@ function renameTheLab(strOldName){
 		case 'CHEM15':
 			strNewName='HCG-Horm';
 			break;
-		case 'CHEM17':
+		case 'CHEM17': // crp protein electrophoresis
 			strNewName='CRP';
 			break;
-		case 'CHEM18':
-			strNewName='Celiac';
+		case 'CHEM18': // Celiac and ANA
+			strNewName='Celiac/ANA';
 			break;
 		case 'CHEM19':
 			strNewName='SAL/ACET';
