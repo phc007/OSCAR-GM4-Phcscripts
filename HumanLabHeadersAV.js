@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Lab Reheader AV
 // @namespace      Phcscript
-// @version        2.5
+// @version        2.6
 // @description    Replaces Lab Headers with Human readable ones
 // @include        *av/echart*
 // @include        *av/providerinbox/inbox*
@@ -141,6 +141,9 @@ function renameTheLab(strOldName){
 			break;
 		case 'CHEM17':
 			strNewName='CRP';
+			break;
+		case 'CHEM18':
+			strNewName='Celiac';
 			break;
 		case 'CHEM19':
 			strNewName='SAL/ACET';
