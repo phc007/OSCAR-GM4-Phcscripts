@@ -1,19 +1,44 @@
 // ==UserScript==
 // @name           Lab Reheader AV
 // @namespace      Phcscript
-// @version        2
+// @version        2.5
 // @description    Replaces Lab Headers with Human readable ones
 // @include        *av/echart*
 // @include        *av/providerinbox/inbox*
+// @include        *oscar/oscarEncounter/oscarConsultationRequest/attachConsultation2.jsp*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
 // ==/UserScript==
 
 jQuery.noConflict();
 
+(function() {
+	'use strict';
+	// style patch for attachConsultation2.jsp
+		const css = `
+    	td {
+      	height: 100%;
+      }
+   `;
+
+		const styleElement = document.createElement('style');
+		styleElement.textContent = css;
+		document.head.appendChild(styleElement); 
+
+})();
+
 function startIt() {
 	nameExchange();
+  // Trigger for echart
 	jQuery("i.material-icons-outlined.cursor-pointer").mouseup(function() {
+    console.log("mouseup");
+    // Code to be executed when the mouse button is released over the element
+		setTimeout(function(){
+      	nameExchange();
+		},1000);
+	});
+  // Trigger for consultation attachements AV
+ 	jQuery(".list-header").mouseup(function() {
     console.log("mouseup");
     // Code to be executed when the mouse button is released over the element
 		setTimeout(function(){
@@ -28,10 +53,22 @@ function nameExchange() {
   	// 'this' refers to each descendant div with 'word-break-all'
       jQuery(this).html(processLabName(jQuery(this).text()));
 		});
+    jQuery(".truncate-row-by-width.max-width-300").each(function() {
+    // this is the inbox in the list view
+      jQuery(this).html(processLabName(jQuery(this).text()));
+		});
+    jQuery("span.text").each(function() {  // OSCAR AV consults
+      jQuery(this).html( processLabName(jQuery(this).html()) );
+		});
 }
 
-// recurrently scan for new elements and fire nameExchange when found
+// wait for ajax load before parsing eChart (AV)
 waitForKeyElements("[data-rbd-draggable-id='labs'] div.word-break-all", startIt);
+// wait for ajax load before parsing consultation requests (OSCAR, AV)
+waitForKeyElements(".list-header", startIt);
+// wait for ajax load before parsing AV Inbox
+waitForKeyElements(".truncate-row-by-width.max-width-300", startIt);
+
 
 function processLabName(strTestName) {
 	theNames=strTestName.split('/');
@@ -47,12 +84,13 @@ function processLabName(strTestName) {
   }
 }
 
+
 function renameTheLab(strOldName){
 	var strNewName=strOldName;
-	switch(strOldName)
+	switch(strOldName.trim())
 	{
-		case 'HAEM1':  // user unfriendly name
-			strNewName='CBC';  // user friendly alternative
+		case 'HAEM1':
+			strNewName='CBC';
 			break;
 		case 'HAEM3':
 			strNewName='INR';
@@ -111,7 +149,7 @@ function renameTheLab(strOldName){
 			strNewName='ETOH';
 			break;
 		case 'CHEM25':
-			strNewName='FIT';
+			strNewName='FOBT';
 			break;
 		case 'CHEM28':
 			strNewName='PTH';
@@ -125,8 +163,20 @@ function renameTheLab(strOldName){
 		case 'MICRO11':
 			strNewName='Fungus';
 			break;
+		case 'PATHP1':
+			strNewName='Path';
+			break;
+		case 'HISTOP1':
+			strNewName='Histo';
+			break;
+		case 'PATHPDF1':
+			strNewName='PDF';
+			break;
 		case 'REFER2':
 			strNewName='HepHIVSer';
+			break;
+		case 'HEACWO':
+			strNewName='CT-Head';
 			break;
 		default:
 			break;
