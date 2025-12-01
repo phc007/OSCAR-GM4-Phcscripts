@@ -3,6 +3,8 @@
 // @namespace      Phcscript
 // @version        2.6
 // @description    Replaces Lab Headers with Human readable ones
+// @updateURL 	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/HumanLabHeadersAV.js
+// @downloadURL	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/HumanLabHeadersAV.js
 // @include        *av/echart*
 // @include        *av/providerinbox/inbox*
 // @include        *oscar/oscarEncounter/oscarConsultationRequest/attachConsultation2.jsp*
