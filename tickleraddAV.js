@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name     Ticklers AV PHC 
-// @version  1.3
+// @version  1.4
 // @grant    none
 // @namespace Phcscript
+// @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/tickleraddAV.js
+// @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/tickleraddAV.js
 // @include */oscar/tickler/*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
