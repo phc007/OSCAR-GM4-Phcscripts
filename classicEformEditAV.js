@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name     eFormEdit
 // @description Adds links for the hidden editor for js eforms when you open the eform manager in a new tab
-// @version  1
+// @version  1.1
 // @grant    none
 // @namespace Phcscript
+// @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/classicEformEditAV.js
+// @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/classicEformEditAV.js
 // @include https://app.avaros.ca/oscar/eform/efmformmanager.jsp
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js    
