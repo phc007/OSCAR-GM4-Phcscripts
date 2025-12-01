@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Ticklers AV PHC 
-// @version  1.5
+// @version  1.6
 // @grant    none
 // @namespace Phcscript
 // @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/tickleraddAV.js
