@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name        BMI and SI to English converter
 // @description Calculates BMI, Converts from kg to lb, cm to in.
-// @version     1
+// @version     1.1
 // @namespace   Phcscript
+// @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/WtHtBMI.js
+// @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/WtHtBMI.js
 // @include     *oscarEncounter/oscarMeasurements/SetupMeasurements.do?*
 // @require   http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @grant       none
