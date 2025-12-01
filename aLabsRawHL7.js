@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name     a Lab's Display raw HL7 PHC
 // @description works on individually appearing labs, mostly stubs for customisation
-// @version  1
+// @version  1.1
 // @namespace Phcscript
 // @grant    none
+// @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/aLabsRawHL7.js
+// @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/aLabsRawHL7.js
 // @include */oscar/lab/CA/ALL/labDisplay.jsp*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
