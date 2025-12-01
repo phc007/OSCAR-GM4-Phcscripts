@@ -3,6 +3,8 @@
 // @version  1.2.3
 // @grant    none
 // @namespace Phcscript
+// @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/PreventionsAV.js
+// @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/PreventionsAV.js
 // @include https://app.avaros.ca/oscar/oscarPrevention/index.jsp*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js    
