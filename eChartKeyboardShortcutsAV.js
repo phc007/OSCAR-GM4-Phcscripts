@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name           EChart_KeyboardShortcuts AV
 // @namespace      Phcscript
-// @version        1.2
+// @version        1.3
 // @description Various Echart shortcut buttons (Alt+ p,t,d,l,c,m,a,r,x,o).
+// @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/eChartKeyboardShortcutsAV.js
+// @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/eChartKeyboardShortcutsAV.js
 // @include        *av/echart*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
