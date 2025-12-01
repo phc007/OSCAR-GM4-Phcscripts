@@ -1,7 +1,9 @@
 // ==UserScript==
 // @name     Lab Display Macro Menu PHC
-// @version  1.2
+// @version  1.3
 // @grant    none
+// @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/labMacroMenu4AV.js
+// @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/labMacroMenu4AV.js
 // @include *av/providerinbox/inbox*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
