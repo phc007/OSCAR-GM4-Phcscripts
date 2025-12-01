@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name     Billing2 PHC AV
-// @version  2.1
+// @version  2.2
 // @description Bills passed billing code in URL parameters
 // @grant    none
 // @namespace Phcscript
+// @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/billingAV.js
+// @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/billingAV.js
 // @include */av/billing2/invoice/*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js 
 // @require https://gist.githubusercontent.com/BrockA/2625891/raw/9c97aa67ff9c5d56be34a55ad6c18a314e5eb548/waitForKeyElements.js
