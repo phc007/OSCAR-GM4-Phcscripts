@@ -1,7 +1,10 @@
 ## Greasemonkey Scripts Repository for OSCAR varients
 This is a repository of my Greasemonkey 4 scripts for add on functionality.
-Scripts with AV in the name are for AVAROS. Files without a fork name will work on many of them.
+Files without a fork name will work on many of them. Scripts with AV in the name are for AVAROS. 
+Scripts with OpenO are specific for OpenO.
 Usually there is a description in the script header which explains their function.
+While these scripts are designed and tested for Greasemonkey and Firefox, they also work in Violentmonkey
+
 ### Instructions
 1. Install the Greasemonkey extension into Firefox.  Settings > Extensions > Search (term) Greasemonkey
 2. Enable Greasemonkey in the Extensions menu
