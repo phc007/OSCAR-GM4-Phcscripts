@@ -11,3 +11,6 @@ While these scripts are designed and tested for Greasemonkey and Firefox, they a
 3. Click on the monkey in the right side of the toolbar and select New User Script
 4. Copy and Paste the desired user script from this repository over to the New User Script window and save
 5. Profit
+
+Note that waitForKeyElements.js is a fork of BrockA's excellent work in the public domaine 
+https://gist.github.com/BrockA/2625891#file-waitforkeyelements-js
