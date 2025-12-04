@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Ticklers AV PHC 
-// @version  1.8
+// @version  1.9
 // @grant    none
 // @namespace Phcscript
 // @author Peter Hutten-Czapski 2025
@@ -61,6 +61,10 @@ window.onload = function() {
                                 <a href="#" onclick='const elements = document.getElementsByName("xml_appointment_date"); elements[0].value="` + addMonth2(6) + `"'>6m</a>
                                 <span>&nbsp; &nbsp; &nbsp;</span>
                                 <a href="#" onclick='const elements = document.getElementsByName("xml_appointment_date"); elements[0].value="` + addMonth2(12) + `"'>1y</a>
+                                <span>&nbsp; &nbsp; &nbsp;</span>
+                                <a href="#" onclick='const elements = document.getElementsByName("xml_appointment_date"); elements[0].value="` + addMonth2(24) + `"'>2y</a>
+                                <span>&nbsp; &nbsp; &nbsp;</span>
+                                <a href="#" onclick='const elements = document.getElementsByName("xml_appointment_date"); elements[0].value="` + addMonth2(36) + `"'>3y</a>
                                 <span>&nbsp; &nbsp; &nbsp;</span>
                                 <a href="#" onclick='const elements = document.getElementsByName("xml_appointment_date"); elements[0].value="` + addMonth2(60) + `"'>5y</a>
                                 <span>&nbsp; &nbsp; &nbsp;</span>  
