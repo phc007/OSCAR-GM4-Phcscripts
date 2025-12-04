@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Ticklers AV PHC 
-// @version  1.9
+// @version  2.0
 // @grant    none
 // @namespace Phcscript
 // @author Peter Hutten-Czapski 2025
@@ -51,9 +51,12 @@ function addMonth2(no) {
 
 window.onload = function() {
         const elements = document.getElementsByName("xml_appointment_date");
-        elements[0].type = "date";
+  			const oldVal = elements[0].value;
+  			if (oldVal.length > 10) {elements[0].value = oldVal.substring(0,10);}
+				elements[0].type = "date";
 
         const parentDiv = document.getElementById('serviceDateWrapper');
+
         const newDiv = document.createElement('div');
         const newHtml = `<div style="flex: 1 1 100%; display: flex; justify-content: flex-end; align-items: center;">
                                 <a href="#" onclick='const elements = document.getElementsByName("xml_appointment_date"); elements[0].value="` + addMonth2(2) + `"'>2m</a>
@@ -72,14 +75,23 @@ window.onload = function() {
                                 <span>&nbsp; &nbsp; &nbsp;</span>  
                             </div>
                             <div class="error-message my-2" id="errorServiceDate"></div>`;
+				newDiv.innerHTML = newHtml;
+ 				if (parentDiv){                 
+          const oldFirstChildDiv = parentDiv.children[2];
+          
 
-        const oldFirstChildDiv = parentDiv.children[2];
-        newDiv.innerHTML = newHtml;
-
-        if (oldFirstChildDiv) { // Check if there is a first child to replace
-                parentDiv.replaceChild(newDiv, oldFirstChildDiv);
+          if (oldFirstChildDiv) { // Check if there is a first child to replace
+                  parentDiv.replaceChild(newDiv, oldFirstChildDiv);
+          } else {
+                  parentDiv.appendChild(newDiv); // If no first child, just append the new one
+          }
         } else {
-                parentDiv.appendChild(newDiv); // If no first child, just append the new one
+ 					// for ticklerEdit.jsp         
+          elements[0].removeAttribute("readonly");
+          const oldDiv = elements[0].nextElementSibling;          
+          elements[0].style.width = '250px';
+          elements[0].style.height = '32px';
+					oldDiv.replaceWith(newDiv);          
         }
 
         var url = new URL(window.location.href);
