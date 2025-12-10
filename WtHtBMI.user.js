@@ -1,4 +1,4 @@
-.// ==UserScript==
+// ==UserScript==
 // @name        BMI and SI to English converter
 // @description Calculates BMI, Converts from kg to lb, cm to in.  Currently works in most OSCAR forks
 // @version     1.2
