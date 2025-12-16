@@ -1,14 +1,15 @@
 // ==UserScript==
 // @name     Preventions PHC
-// @version  1.2.3
+// @author	 Peter Hutten-Czapski
+// @version  1.2.5
 // @grant    none
 // @namespace Phcscript
 // @description Adds a menu of all the immunization brands available in Canada to AV
 // @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/PreventionsAV.user.js
 // @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/PreventionsAV.user.js
 // @include https://app.avaros.ca/oscar/oscarPrevention/index.jsp*
-// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
-// @require https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js    
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js#sha512=MXe5EK5gyK+fbhwQy/dukwz9fw71HZcsM4KsyDBDTvMyjymkiO0M5qqU0lF4vqLI4VnKf1+DIKf1GM6RFkO8PA==
+// @require https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js#sha512=MSOo1aY+3pXCOCdGAYoBZ6YGI0aragoQsg1mKKBHXCYPIWxamwOE7Drh+N5CPgGI5SA9IEKJiPjdfqWFWmZtRA==    
 // ==/UserScript==
 
 jQuery.noConflict();
@@ -96,6 +97,7 @@ var tags = [
 {name:"Flu", value:"FLUAD 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"Seqirus UK Limited", dose:"0.5", units:"mL", route:"IM", din:"2362384"},
 {name:"Flu", value:"FLULAVAL TETRA 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"ID Biomedical Corporation of Quebec", dose:"0.5", units:"mL", route:"IM", din:"2420783"},
 {name:"Flu", value:"FLUMIST QUADRIVALENT 0.2 milliliter intranasal spray", manufacture:"AstraZeneca Canada Inc.", dose:"0.2", units:"mL", route:"Intranasal", din:"2426544"},
+{name:"Flu", value:"FLUVIRAL 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"ID Biomedical Corporation of Quebec", dose:"0.5", units:"mL", route:"IM", din:"02420686"},
 {name:"Flu", value:"FLUZONE High-Dose Quadrivalent 60 micrograms per 0.7 milliliter suspension for injection", manufacture:"Sanofi Pasteur Limited", dose:"0.7", units:"mL", route:"IM", din:"2500523"},
 {name:"Flu", value:"FLUZONE Quadrivalent 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"Sanofi Pasteur Limited", dose:"0.5", units:"mL", route:"IM", din:"2432730"},
 {name:"Flu", value:"INFLUVAC TETRA 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"BGP Pharma ULC", dose:"0.5", units:"mL", route:"IM", din:"2484854"},
