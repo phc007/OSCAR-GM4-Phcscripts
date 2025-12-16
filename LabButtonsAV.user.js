@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
-// @version  1.8
+// @version  1.9
 // @namespace Phcscript
 // @grant     none
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
@@ -18,32 +18,79 @@ var demographicNo = "";
 var providerNo = "";
 var segmentID = "";
 
-// this can help deal with react not noticing when the DOM has been changed while commenting and acknowledging
-function ButtonFunction(str){
-  jQuery('textarea:first').attr("id", "myId");
-  jQuery("span:contains('Acknowledge')").click();
-  setTimeout(function(){
-  	jQuery('textarea:not(#myId)').val(str);
-       setTimeout(function(){
-           jQuery('textarea:not(#myId)').trigger2("change");
-           setTimeout(function(){
-               jQuery('#acknowledge-trigger').click();
-               //accessIframe();
-           },500);
-		},500);
-	},500);
+
+function ButtonFunction(str) {
+  console.log('[ButtonFunction] Started with value:', str);
+
+  const firstTextarea = document.querySelector('textarea');
+  if (!firstTextarea) {
+    console.log('[ButtonFunction] No initial textarea found');
+    return;
+  }
+
+  firstTextarea.id = 'myId';
+  console.log('[ButtonFunction] Assigned temp id');
+
+  // Click the dialog trigger
+  const acknowledgeSpan = [...document.querySelectorAll('span')]
+    .find(span => span.textContent.includes('Acknowledge'));
+
+  if (!acknowledgeSpan) {
+    console.log('[ButtonFunction] Acknowledge span not found');
+    return;
+  }
+
+  acknowledgeSpan.click();
+  console.log('[ButtonFunction] Clicked Acknowledge');
+
+  const observer = new MutationObserver(() => {
+    const targetTextarea = document.querySelector('textarea:not(#myId)');
+    if (!targetTextarea) return;
+
+    observer.disconnect();
+    console.log('[ButtonFunction] Target textarea found');
+
+    // ✅ Use React-safe native setter
+    const nativeSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLTextAreaElement.prototype,
+      'value'
+    ).set;
+
+    targetTextarea.focus();
+    nativeSetter.call(targetTextarea, str);
+
+    console.log('[ButtonFunction] Native value setter called with:', str);
+
+    // 🔥 Critical: input event updates React state
+    targetTextarea.dispatchEvent(
+      new Event('input', { bubbles: true })
+    );
+
+    console.log('[ButtonFunction] Input event dispatched');
+
+    // Optional but sometimes required
+    targetTextarea.dispatchEvent(
+      new Event('change', { bubbles: true })
+    );
+
+    console.log('[ButtonFunction] Change event dispatched');
+
+    const finalButton = document.querySelector('#acknowledge-trigger');
+    if (finalButton) {
+      finalButton.click();
+      console.log('[ButtonFunction] Final button clicked');
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  console.log('[ButtonFunction] Waiting for dialog textarea...');
 }
 
-// this uses the preventions button that is on page and internally linked to the demographic
-function ClickPreventions(prevention){
-  jQuery("span:contains('Preventions')").click();
-  setTimeout(function(){
-  	const textel = document.querySelector('input[placeholder="Search Prevention"]');
-    textel.focus(); // The window must be the top-level browsing context ie primary and the element focused executing the command.
-    document.execCommand('insertText', false, prevention);  //ancient and still works
-    jQuery('[placeholder="Search Prevention"]').trigger2("change");
-	},200);
-}
+
 
 //https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=4714
 function openPrevention(prev){
@@ -266,23 +313,6 @@ function getFutureDate(delta){
   return futureDateString;
 }
 
-jQuery(document).ready(function() {
-  	console.log("ready!");
-  // events to trigger a real change in react
-  (function($) {
-      $.fn.trigger2 = function(eventName) {
-          return this.each(function() {
-              var el = $(this).get(0);
-              triggerNativeEvent(el, eventName);
-          });
-      };
-      function triggerNativeEvent(el, eventName){
-          var evt = document.createEvent('Events');
-          evt.initEvent(eventName, true, false);
-          el.dispatchEvent(evt);
-  		}
-  }(jQuery));
-});
 
 // wait for the body of the iframe is loaded, and reload if the iframe changes
 waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
