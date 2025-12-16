@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
-// @version  1.7.5
+// @author   Peter Hutten-Czapski
+// @version  1.8
 // @namespace Phcscript
 // @grant     none
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
@@ -23,10 +24,12 @@ function ButtonFunction(str){
   jQuery("span:contains('Acknowledge')").click();
   setTimeout(function(){
   	jQuery('textarea:not(#myId)').val(str);
-		jQuery('textarea:not(#myId)').trigger2("change");
-		setTimeout(function(){
-			jQuery('#acknowledge-trigger').click();
-			//accessIframe();
+       setTimeout(function(){
+           jQuery('textarea:not(#myId)').trigger2("change");
+           setTimeout(function(){
+               jQuery('#acknowledge-trigger').click();
+               //accessIframe();
+           },500);
 		},500);
 	},500);
 }
