@@ -1,14 +1,15 @@
 // ==UserScript==
 // @name           Lab Reheader AV
+// @author	       Peter Hutten-Czapski
 // @namespace      Phcscript
-// @version        2.6
+// @version        2.7
 // @description    Replaces Lab Headers with Human readable ones
 // @updateURL 	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/HumanLabHeadersAV.user.js
 // @downloadURL	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/HumanLabHeadersAV.user.js
 // @include        *av/echart*
 // @include        *av/providerinbox/inbox*
 // @include        *oscar/oscarEncounter/oscarConsultationRequest/attachConsultation2.jsp*
-// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js#sha512=MXe5EK5gyK+fbhwQy/dukwz9fw71HZcsM4KsyDBDTvMyjymkiO0M5qqU0lF4vqLI4VnKf1+DIKf1GM6RFkO8PA==
 // @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
 // ==/UserScript==
 
