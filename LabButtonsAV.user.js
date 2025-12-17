@@ -1,23 +1,18 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
-// @version  1.9
+// @version  2.0
 // @namespace Phcscript
 // @grant     none
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/LabButtonsAV.user.js
 // @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/LabButtonsAV.user.js
-// @include https://app.avaros.ca/av/providerinbox/inbox*
-// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
-// @require https://gist.githubusercontent.com/BrockA/2625891/raw/9c97aa67ff9c5d56be34a55ad6c18a314e5eb548/waitForKeyElements.js
+// @include https://app.avaros.ca/av/*inbox*
 // ==/UserScript==
-
-//jQuery.noConflict();
 
 var demographicNo = "";
 var providerNo = "";
 var segmentID = "";
-
 
 function ButtonFunction(str) {
   console.log('[ButtonFunction] Started with value:', str);
@@ -90,8 +85,6 @@ function ButtonFunction(str) {
   console.log('[ButtonFunction] Waiting for dialog textarea...');
 }
 
-
-
 //https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=4714
 function openPrevention(prev){
   var preventionURL = 'https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=';
@@ -125,7 +118,7 @@ function postBilling(bcode){
   billingURL += '?billRegion=ON&appointment_no=0&demographic_name=&demographic_no='+demographicNo;
   billingURL += '&user_no='+providerNo;
   billingURL += '&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider='+providerNo;
-  billingURL += "&bill="+bcode;  //add a parameter for the billing greasemonkey
+  billingURL += "&bill="+bcode; //add a parameter for the billing greasemonkey
 	var newWindow = window.open(billingURL, '_blank', 'width=1450,height=450');
 	if (newWindow) { // Check if the window was successfully opened
 	} else {
@@ -299,8 +292,39 @@ span1.classList.add('alert');
 span1.setAttribute("style", "color: red;");
 menuContainer.appendChild(span1);
 
-// Find a suitable place to insert the menu on the page
-document.body.appendChild(menuContainer);
+// Insert the menu on the page
+function waitForDocumentComplete({ timeout = 5000 } = {}) {
+  return new Promise(resolve => {
+    // Already complete → run immediately
+    if (document.readyState === 'complete') {
+      resolve({ reason: 'ready' });
+      return;
+    }
+
+    let settled = false;
+
+    const done = (reason) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      window.removeEventListener('load', onLoad);
+      resolve({ reason });
+    };
+
+    const onLoad = () => done('load');
+
+    // Normal path
+    window.addEventListener('load', onLoad, { once: true });
+
+    // Fallback timeout
+    const timer = setTimeout(() => done('timeout'), timeout);
+  });
+}
+
+waitForDocumentComplete({ timeout: 7000 }).then(({ reason }) => {
+  console.log('Running after:', reason);
+  document.body.appendChild(menuContainer);
+});
 
 // utility to set a date string so many years in the future
 function getFutureDate(delta){
@@ -315,83 +339,154 @@ function getFutureDate(delta){
 
 
 // wait for the body of the iframe is loaded, and reload if the iframe changes
-waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
+//waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
 
-function accessIframe(){
-	setTimeout(function(){
-    	var currentIframeUrl = jQuery('iframe[title="Preview"]')[0].contentWindow.location.href;
-    	console.log("accessing iframe "+currentIframeUrl);
-    	var url = new URL(currentIframeUrl);
-    	var params = url.searchParams;
-		var $iframeContents = jQuery('iframe[title="Preview"]').contents();
-    	var iframeHeadContent = $iframeContents.find("head").html();
+const iframe = document.querySelector('iframe[title="Preview"]');
 
-    	jQuery(":button").css("background-color", ""); // Removes and resets the inline 'background-color' property
-    	jQuery("#alert").text("");
+function onIframeReady() {
+  try {
+    if (iframe.contentDocument?.readyState === "complete") {
+      accessIframe();
+    }
+  } catch (e) {
+    // Cross-origin iframe – cannot access content
+  }
+}
 
-		// extract information from the iFrame parameters and head content that may be useful for Macros
-		console.log("segmentID:"+params.get("segmentID")+"  docId:"+params.get("docId") + "  demographicNo:" + getNoFromString(iframeHeadContent,'demographicNo') + "  providerNo:" + getNoFromString(iframeHeadContent,'providerNo'));
+if (iframe) {
+  iframe.addEventListener('load', accessIframe);
+  onIframeReady();
+}
 
-    	segmentID = params.get("segmentID");
-			demographicNo = getNoFromString(iframeHeadContent,'demographicNo') != "" ? getNoFromString(iframeHeadContent,'demographicNo') : getNoFromString(iframeHeadContent,'demographicID') ;
-    	providerNo = getNoFromString(iframeHeadContent,'providerNo');
+function accessIframe() {
+  setTimeout(function () {
+    const iframe = document.querySelector('iframe[title="Preview"]');
+    if (!iframe || !iframe.contentWindow) return;
 
-    	if (demographicNo == "") {
-        console.log("no demo here");
-       	jQuery(".demodependent").prop("disabled", true);
-      } else {
-       	jQuery(".demodependent").prop("disabled", false);
+    const currentIframeUrl = iframe.contentWindow.location.href;
+    console.log("accessing iframe " + currentIframeUrl);
+
+    const url = new URL(currentIframeUrl);
+    const params = url.searchParams;
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    const iframeHeadContent = iframeDoc.head ? iframeDoc.head.innerHTML : "";
+
+    // Reset button background colors
+    document.querySelectorAll("button").forEach(btn => {
+      btn.style.backgroundColor = "";
+    });
+
+    // Clear alert text
+    const alertEl = document.getElementById("alert");
+    if (alertEl) alertEl.textContent = "";
+
+    console.log(
+      "segmentID:" + params.get("segmentID") +
+      "  docId:" + params.get("docId") +
+      "  demographicNo:" + getNoFromString(iframeHeadContent, "demographicNo") +
+      "  providerNo:" + getNoFromString(iframeHeadContent, "providerNo")
+    );
+
+    segmentID = params.get("segmentID");
+    demographicNo =
+      getNoFromString(iframeHeadContent, "demographicNo") ||
+      getNoFromString(iframeHeadContent, "demographicID");
+
+    providerNo = getNoFromString(iframeHeadContent, "providerNo");
+
+    // Enable / disable demographic dependent elements
+    document.querySelectorAll(".demodependent").forEach(el => {
+      el.disabled = demographicNo === "";
+    });
+
+    if (demographicNo === "") console.log("no demo here");
+
+    // Enable / disable provider dependent elements
+    document.querySelectorAll(".providerdependent").forEach(el => {
+      el.disabled = providerNo === "";
+    });
+
+    if (providerNo === "") console.log("no provider here");
+
+    // Add links to show / hide raw HL7
+    const iframeBody = iframeDoc.body;
+    const rawHl7El = iframeDoc.querySelector("[id^='rawhl7']");
+    const theId = rawHl7El ? rawHl7El.id : null;
+
+    if (theId && iframeBody) {
+      iframeBody.insertAdjacentHTML(
+        "beforeend",
+        `<a id="showraw" onclick="document.getElementById('${theId}').style.display='block'">Show HL7</a>
+         &nbsp;|&nbsp;
+         <a id="hideraw" onclick="document.getElementById('${theId}').style.display='none'">Hide HL7</a>`
+      );
+    }
+
+    // Scan raw HL7 content
+    if (rawHl7El) {
+      const elementText = rawHl7El.textContent || "";
+
+      if (
+        elementText.includes("Human Papilloma Virus") ||
+        elementText.includes("HEACWO")
+      ) {
+        const pap = document.getElementById("pap");
+        if (pap) pap.style.backgroundColor = "aquamarine";
       }
-    	if (providerNo == "") {
-        console.log("no provider here");
-       	jQuery(".providerdependent").prop("disabled", true);
-      } else {
-       	jQuery(".providerdependent").prop("disabled", false);
+
+      if (elementText.includes("Prostate Specific Antigen Monitoring")) {
+        const psa = document.getElementById("psa");
+        if (psa) psa.style.backgroundColor = "aquamarine";
       }
 
-	// add links to show / hide the raw HL7
-			var $iframeBody = $iframeContents.find("body");
-    	var theId = $iframeContents.find("[id^='rawhl7']").attr('id');
-    	if (theId){
-				$iframeBody.append('<a id="showraw" onclick="document.getElementById(\''+theId+'\').style.display = \'block\'">Show HL7</a>&nbsp;|&nbsp;<a id="hideraw" onclick="document.getElementById(\''+theId+'\').style.display = \'none\'">Hide HL7</a>');
+      if (elementText.includes("FECAL IMMUNOCHEMICAL TEST")) {
+        const fit = document.getElementById("fit");
+        if (fit) fit.style.backgroundColor = "aquamarine";
+      }
+    }
+
+    // Detect nested iframe content (colonoscopy / mammography / ER / hospital)
+    setTimeout(function () {
+      const innerIframe = iframeDoc.querySelector(".document-preview");
+      if (!innerIframe || !innerIframe.contentDocument) return;
+
+      const innerDoc = innerIframe.contentDocument;
+      const innerText = innerDoc.body ? innerDoc.body.textContent : "";
+
+      if (
+        (innerText.includes("Operative") || innerText.includes("OPERATIVE")) &&
+        innerText.includes("colonoscope")
+      ) {
+        if (alertEl) alertEl.textContent = "Colonoscopy";
       }
 
-	// scan the raw HL7 content for key words reflecting pap psa fit
-    	var elementText = $iframeContents.find("#"+theId).text();
-    	if (elementText.includes('Human Papilloma Virus') || elementText.includes('HEACWO')){  // NB .includes is case sensitive
-        jQuery('#pap').css('background-color', 'aquamarine');
-      }
-      if (elementText.includes('Prostate Specific Antigen Monitoring')){
-        jQuery('#psa').css('background-color', 'aquamarine');
-      }
-    	if (elementText.includes('FECAL IMMUNOCHEMICAL TEST')){
-        jQuery('#fit').css('background-color', 'aquamarine');
+      if (innerText.includes("MAMMOGRAM")) {
+        if (alertEl) alertEl.textContent = "Mammo";
       }
 
-  // different code necessary to detect colonoscopy mammography from nested HRM iframe
-      setTimeout(function(){
-        var $innerIframeContents = $iframeContents.find('.document-preview').contents();
-        var innerElementText = $innerIframeContents.find('div').text();
-        if ((innerElementText.includes('Operative') || innerElementText.includes('OPERATIVE')) && innerElementText.includes('colonoscope')){
-          jQuery("#alert").text("Colonoscopy");
-        }
-        if (innerElementText.includes('MAMMOGRAM')){
-          jQuery("#alert").text("Mammo");
-        }
-        if (innerElementText.includes('ED Adult Report')){
-          jQuery('#er').css('background-color', 'aquamarine');
-        }
-        if (innerElementText.includes('ADMISSION NOTE') || innerElementText.includes('DISCHARGE SUMMARY') || innerElementText.includes('Transfer of Care')){
-          jQuery('#h').css('background-color', 'aquamarine');
-        }
-      },300);
+      if (innerText.includes("ED Adult Report")) {
+        const er = document.getElementById("er");
+        if (er) er.style.backgroundColor = "aquamarine";
+      }
 
-	// remove <br> from successive alert wraps  
-			var $alertwrap = $iframeContents.find('div.alert-wrapper');
-			var $alertbr = $alertwrap.next('br');
-  		$alertbr.remove(); 
-    
-	},300);
+      if (
+        innerText.includes("ADMISSION NOTE") ||
+        innerText.includes("DISCHARGE SUMMARY") ||
+        innerText.includes("Transfer of Care")
+      ) {
+        const h = document.getElementById("h");
+        if (h) h.style.backgroundColor = "aquamarine";
+      }
+    }, 300);
+
+    // Remove <br> after alert-wrapper
+    const alertWrap = iframeDoc.querySelector("div.alert-wrapper");
+    if (alertWrap && alertWrap.nextElementSibling?.tagName === "BR") {
+      alertWrap.nextElementSibling.remove();
+    }
+
+  }, 300);
 }
 
 function getNoFromString(queryString, key) {
