@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
-// @version  2.0
+// @version  2.1
 // @namespace Phcscript
 // @grant     none
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/LabButtonsAV.user.js
 // @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/LabButtonsAV.user.js
 // @include https://app.avaros.ca/av/*inbox*
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
+// @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
 // ==/UserScript==
 
 var demographicNo = "";
@@ -337,26 +339,8 @@ function getFutureDate(delta){
   return futureDateString;
 }
 
+waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
 
-// wait for the body of the iframe is loaded, and reload if the iframe changes
-//waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
-
-const iframe = document.querySelector('iframe[title="Preview"]');
-
-function onIframeReady() {
-  try {
-    if (iframe.contentDocument?.readyState === "complete") {
-      accessIframe();
-    }
-  } catch (e) {
-    // Cross-origin iframe – cannot access content
-  }
-}
-
-if (iframe) {
-  iframe.addEventListener('load', accessIframe);
-  onIframeReady();
-}
 
 function accessIframe() {
   setTimeout(function () {
