@@ -1,16 +1,17 @@
 ## Greasemonkey Scripts Repository for OSCAR varients
 This is a repository of my Greasemonkey 4 scripts for add on functionality.
-Files without a fork name will work on many of them. Scripts with AV in the name are for AVAROS. 
+Files without a fork name will work on many of them. Scripts with AV in the name are for Avaros. 
 Scripts with OpenO are specific for OpenO.
 Usually there is a description in the script header which explains their function.
-While these scripts are designed and tested for Greasemonkey and Firefox, they also work in Violentmonkey
+These scripts are designed and tested for Greasemonkey and Violentmonkey on Firefox
+If you have to use Chrome you will need Tampermonkey
 
 ### Instructions
-1. Install the Greasemonkey extension into Firefox.  Settings > Extensions > Search (term) Greasemonkey
-2. Enable Greasemonkey in the Extensions menu
-3. Click on the monkey in the right side of the toolbar and select New User Script
-4. Copy and Paste the desired user script from this repository over to the New User Script window and save
-5. Profit
+1. Install the *monkey extension into your browser. 
+2. Enable the monkey in the Extensions menu.  You may need developer mode and enable userscripts set
+3. Click on the userscript in this repository that you want
+4. Click the button that says "Open in Raw"
+5. Allow the script to install into your *monkey 
 
 Note that waitForKeyElements.js is a fork of BrockA's excellent work in the public domaine 
 https://gist.github.com/BrockA/2625891#file-waitforkeyelements-js
