@@ -4,10 +4,10 @@ Files without a fork name will work on many of them. Scripts with AV in the name
 Scripts with OpenO are specific for OpenO.
 Usually there is a description in the script header which explains their function.
 These scripts are designed and tested for Greasemonkey and Violentmonkey on Firefox.
-If you have to use Chrome, Tampermonkey is currently the only option.
+If you have to use Chrome, Tampermonkey and Orangemonkey are currently supported.
 
 ### Instructions
-1. Install the _monkey extension into your browser.  This involves opening the Extensions settings, searching for the extension and installing it.  You will need to enable the _monkey.  For Tampermonkey and Chrome you will need to allow developer mode and enable userscripts. 
+1. Install the _monkey extension into your browser.  This involves opening the Extensions settings, searching for the extension and installing it.  You will need to enable the _monkey.  For Chrome you will need to allow developer mode and enable userscripts. 
 2. Adjust your browser to allow popups for your OSCAR varient
 3. Click on the userscript in this repository that you want
 4. Click the button that says "Raw"
