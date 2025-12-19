@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
-// @version  2.1
+// @version  2.2
 // @namespace Phcscript
 // @grant     none
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
@@ -339,6 +339,7 @@ function getFutureDate(delta){
   return futureDateString;
 }
 
+
 waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
 
 
@@ -357,10 +358,17 @@ function accessIframe() {
     const iframeHeadContent = iframeDoc.head ? iframeDoc.head.innerHTML : "";
 
     // Reset button background colors
+      var i=0;
     document.querySelectorAll("button").forEach(btn => {
       btn.style.backgroundColor = "";
+      i = i+1;
     });
-
+      console.log("iterated button count: "+i);
+      document.getElementById("pap").style.backgroundColor = "";
+      document.getElementById("psa").style.backgroundColor = "";
+      document.getElementById("fit").style.backgroundColor = "";
+      document.getElementById("er").style.backgroundColor = "";
+      document.getElementById("h").style.backgroundColor = "";
     // Clear alert text
     const alertEl = document.getElementById("alert");
     if (alertEl) alertEl.textContent = "";
@@ -412,8 +420,7 @@ function accessIframe() {
       const elementText = rawHl7El.textContent || "";
 
       if (
-        elementText.includes("Human Papilloma Virus") ||
-        elementText.includes("HEACWO")
+        elementText.includes("Human Papilloma Virus")
       ) {
         const pap = document.getElementById("pap");
         if (pap) pap.style.backgroundColor = "aquamarine";
@@ -465,10 +472,15 @@ function accessIframe() {
     }, 300);
 
     // Remove <br> after alert-wrapper
-    const alertWrap = iframeDoc.querySelector("div.alert-wrapper");
-    if (alertWrap && alertWrap.nextElementSibling?.tagName === "BR") {
-      alertWrap.nextElementSibling.remove();
-    }
+      // First Select all alert wrappers
+      const alertWraps = iframeDoc.querySelectorAll("div.alert-wrapper");
+
+      alertWraps.forEach(alertWrap => {
+          const next = alertWrap.nextElementSibling;
+          if (next?.tagName === "BR") {
+              next.remove();
+          }
+      });
 
   }, 300);
 }
