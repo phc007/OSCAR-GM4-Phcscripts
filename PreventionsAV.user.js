@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name     Preventions PHC
 // @author	 Peter Hutten-Czapski
-// @version  1.2.6
+// @license  GNU General Public License v3
+// @version  1.2.7
+// @description Adds a menu of all the immunization brands available in Canada to AV
 // @grant    none
 // @namespace Phcscript
-// @description Adds a menu of all the immunization brands available in Canada to AV
 // @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/PreventionsAV.user.js
 // @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/PreventionsAV.user.js
 // @include https://app.avaros.ca/oscar/oscarPrevention/index.jsp*
