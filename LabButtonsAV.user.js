@@ -479,7 +479,7 @@ function accessIframe(node) {
           }
       });
 
-  }, 300);
+  }, 500);
 }
 
 function getNoFromString(queryString, key) {
