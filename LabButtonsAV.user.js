@@ -83,7 +83,6 @@ function ButtonFunction(str) {
     childList: true,
     subtree: true
   });
-  window.opener.location.reload(); //update the Schedule page as a inbox item has just been acked
   console.log('[ButtonFunction] Waiting for dialog textarea...');
 }
 
