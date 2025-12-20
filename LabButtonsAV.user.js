@@ -1,15 +1,14 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
-// @version  2.2
+// @version  3.0
+// @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
-// @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/LabButtonsAV.user.js
 // @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/LabButtonsAV.user.js
 // @include https://app.avaros.ca/av/*inbox*
-// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
-// @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
+// @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements2.js
 // ==/UserScript==
 
 var demographicNo = "";
@@ -339,11 +338,9 @@ function getFutureDate(delta){
   return futureDateString;
 }
 
-
 waitForKeyElements("body", accessIframe, false,'iframe[title="Preview"]');
 
-
-function accessIframe() {
+function accessIframe(node) {
   setTimeout(function () {
     const iframe = document.querySelector('iframe[title="Preview"]');
     if (!iframe || !iframe.contentWindow) return;
@@ -358,12 +355,6 @@ function accessIframe() {
     const iframeHeadContent = iframeDoc.head ? iframeDoc.head.innerHTML : "";
 
     // Reset button background colors
-      var i=0;
-    document.querySelectorAll("button").forEach(btn => {
-      btn.style.backgroundColor = "";
-      i = i+1;
-    });
-      console.log("iterated button count: "+i);
       document.getElementById("pap").style.backgroundColor = "";
       document.getElementById("psa").style.backgroundColor = "";
       document.getElementById("fit").style.backgroundColor = "";
@@ -405,8 +396,10 @@ function accessIframe() {
     const iframeBody = iframeDoc.body;
     const rawHl7El = iframeDoc.querySelector("[id^='rawhl7']");
     const theId = rawHl7El ? rawHl7El.id : null;
+    const showrawEl = iframeDoc.querySelector("#showraw");
+    const linkthere = showrawEl ? showrawEl.id : null;
 
-    if (theId && iframeBody) {
+    if (theId && iframeBody && !linkthere) {
       iframeBody.insertAdjacentHTML(
         "beforeend",
         `<a id="showraw" onclick="document.getElementById('${theId}').style.display='block'">Show HL7</a>
@@ -456,7 +449,10 @@ function accessIframe() {
         if (alertEl) alertEl.textContent = "Mammo";
       }
 
-      if (innerText.includes("ED Adult Report")) {
+      if (
+          innerText.includes("ED Adult Report") ||
+          innerText.includes("was discharged from the Emergency Department")
+      ) {
         const er = document.getElementById("er");
         if (er) er.style.backgroundColor = "aquamarine";
       }
@@ -464,7 +460,8 @@ function accessIframe() {
       if (
         innerText.includes("ADMISSION NOTE") ||
         innerText.includes("DISCHARGE SUMMARY") ||
-        innerText.includes("Transfer of Care")
+        innerText.includes("Transfer of Care") ||
+        innerText.includes("The following patient was admitted to an inpatient unit")
       ) {
         const h = document.getElementById("h");
         if (h) h.style.backgroundColor = "aquamarine";
