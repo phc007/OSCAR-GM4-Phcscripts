@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
-// @version  3.0
+// @license  GNU General Public License v3
+// @version  3.1
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -110,6 +111,55 @@ function openTickler(tickler, adate){
 	} else {
 		alert('Popup blocked! Please allow popups for this site.');
 	}
+}
+
+//https://app.avaros.ca/oscar/tickler/ticklerDemoMain.jsp?demoview=802
+function getTicklers(demoNumber) {
+    var pathArray = window.location.href;
+    var newURL = "https://app.avaros.ca/oscar/tickler/ticklerDemoMain.jsp?demoview=" + demoNumber;
+    fetch(newURL)
+        .then(function (response) {
+            if (!response.ok) {
+                console.error("[getTicklers] Failed to fetch ticklers:", response.status);
+                return null;
+            }
+            return response.text();
+        })
+        .then(function (str) {
+            if (!str) return;
+            var regex = /Active<\/TD>[\n\t]*<TD ROWSPAN="1" class="[\w]*Red">[\s\w]*<div[\s\w"=-]*>\s*([\s\w]*\w)\s*</gmi;
+            var array;
+            var ticklers = [];
+            var i = 0;
+            var outputEl = document.getElementById("alert");
+            if (!outputEl) {
+                console.error("[getTicklers] Element with ID 'alert' not found.");
+                return;
+            }
+            while ((array = regex.exec(str)) !== null) {
+                ticklers[i] = array[1];
+                if (i > 0) {
+                    outputEl.textContent += ", ";
+                }
+                outputEl.textContent += ticklers[i];
+                i++;
+            }
+            if (ticklers.length > 0) {
+                outputEl.style.color = "red";
+            } else {
+                outputEl.style.color = "black";
+            }
+            outputEl.textContent += " ";
+            var a = document.createElement('a');
+            a.href = newURL;
+            a.title = "Click link to open tickler list";
+            a.innerHTML = ticklers.length + " ticklers";
+            outputEl.append(a);
+            console.log("[getTicklers] Found " + ticklers.length + " ticklers");
+        })
+        .catch(function (error) {
+            console.error("[getTicklers] Fetch error:", error);
+        });
 }
 
 //https://app.avaros.ca/av/billing2/invoice/2808?billRegion=ON&appointment_no=0&demographic_name=&demographic_no=2808&providerview=1001&user_no=1001&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider=1001
@@ -293,6 +343,12 @@ span1.classList.add('alert');
 span1.setAttribute("style", "color: red;");
 menuContainer.appendChild(span1);
 
+var span2=document.createElement("span");
+span2.id="warn";
+span2.classList.add('alert');
+span2.setAttribute("style", "color: aquamarine;");
+menuContainer.appendChild(span2);
+
 // Insert the menu on the page
 function waitForDocumentComplete({ timeout = 5000 } = {}) {
   return new Promise(resolve => {
@@ -323,7 +379,7 @@ function waitForDocumentComplete({ timeout = 5000 } = {}) {
 }
 
 waitForDocumentComplete({ timeout: 7000 }).then(({ reason }) => {
-  console.log('Running after:', reason);
+  console.log('[waitForDocumentComplete] Running after:', reason);
   document.body.appendChild(menuContainer);
 });
 
@@ -360,12 +416,17 @@ function accessIframe(node) {
       document.getElementById("fit").style.backgroundColor = "";
       document.getElementById("er").style.backgroundColor = "";
       document.getElementById("h").style.backgroundColor = "";
+
     // Clear alert text
     const alertEl = document.getElementById("alert");
     if (alertEl) alertEl.textContent = "";
 
+    // Clear warning text
+    const alertElw = document.getElementById("warn");
+    if (alertElw) alertElw.textContent = "";
+
     console.log(
-      "segmentID:" + params.get("segmentID") +
+      "[accessIframe] segmentID:" + params.get("segmentID") +
       "  docId:" + params.get("docId") +
       "  demographicNo:" + getNoFromString(iframeHeadContent, "demographicNo") +
       "  providerNo:" + getNoFromString(iframeHeadContent, "providerNo")
@@ -383,14 +444,18 @@ function accessIframe(node) {
       el.disabled = demographicNo === "";
     });
 
-    if (demographicNo === "") console.log("no demo here");
+    if (demographicNo === "") {
+        console.log("[accessIframe] No demo here");
+    } else {
+        getTicklers(demographicNo);
+    }
 
     // Enable / disable provider dependent elements
     document.querySelectorAll(".providerdependent").forEach(el => {
       el.disabled = providerNo === "";
     });
 
-    if (providerNo === "") console.log("no provider here");
+    if (providerNo === "") console.log("[accessIframe] No provider here");
 
     // Add links to show / hide raw HL7
     const iframeBody = iframeDoc.body;
@@ -442,11 +507,11 @@ function accessIframe(node) {
         (innerText.includes("Operative") || innerText.includes("OPERATIVE")) &&
         innerText.includes("colonoscope")
       ) {
-        if (alertEl) alertEl.textContent = "Colonoscopy";
+        if (alertElw) alertElw.textContent = "Colonoscopy";
       }
 
       if (innerText.includes("MAMMOGRAM")) {
-        if (alertEl) alertEl.textContent = "Mammo";
+        if (alertElw) alertElw.textContent = "Mammo";
       }
 
       if (
