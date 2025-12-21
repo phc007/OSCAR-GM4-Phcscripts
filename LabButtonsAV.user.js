@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.5
+// @version  3.6
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -156,6 +156,7 @@ function getTicklers(demoNumber) {
             var a = document.createElement('a');
             a.href = newURL;
             a.title = "Click link to open tickler list";
+            a.target = '_blank';
             a.innerHTML = ticklers.length + " ticklers";
             outputEl.append(a);
             console.log("[getTicklers] Found " + ticklers.length + " ticklers");
@@ -304,9 +305,9 @@ input12.value="Colon";
 input12.id="colonoscopy";
 input12.addEventListener("click", function() {
   if (demographicNo) {
-    postBilling("Q142A"); //Colorectal Cancer Screening Test Exclusion code
   	openPrevention('COLONOSCOPY');
 	openTickler('Colonoscopy repeat in 3yr',getFutureDate(3)); // 3, 5, or 10yr PHC fix
+    postBilling("Q142A"); //Colorectal Cancer Screening Test Exclusion code
   } else {
     console.warn('COLONOSCOPY but no demo');
   }
@@ -323,9 +324,9 @@ input13.value="Mammo";
 input13.id="mammo";
 input13.addEventListener("click", function() {
   if (demographicNo) {
-    postBilling("Q131A"); //?necessary the tracking code
   	openPrevention('MAM');
     openTickler('Mammo repeat in 2yr',getFutureDate(2));
+    postBilling("Q131A"); //?necessary the tracking code
   } else {
     console.warn('MAM but no demo');
   }
