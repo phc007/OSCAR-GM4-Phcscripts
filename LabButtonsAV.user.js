@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.1
+// @version  3.5
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -15,7 +15,10 @@
 var demographicNo = "";
 var providerNo = "";
 var segmentID = "";
-
+console.log("referrer:"+document.referrer);
+console.log("parent parent location:"+window.parent.window.parent.location);
+console.log("parent location:"+window.parent.location);
+console.log("parent top location:"+window.top.location);
 function ButtonFunction(str) {
   console.log('[ButtonFunction] Started with value:', str);
 
@@ -83,6 +86,7 @@ function ButtonFunction(str) {
     childList: true,
     subtree: true
   });
+
   console.log('[ButtonFunction] Waiting for dialog textarea...');
 }
 
@@ -293,7 +297,7 @@ input11.classList.add('demodependent');
 menuContainer.appendChild(input11);
 
 // the following will be from HRM, no real point unless a demo can be found
-/*
+
 var input12=document.createElement("input");
 input12.type="button";
 input12.value="Colon";
@@ -302,11 +306,10 @@ input12.addEventListener("click", function() {
   if (demographicNo) {
     postBilling("Q142A"); //Colorectal Cancer Screening Test Exclusion code
   	openPrevention('COLONOSCOPY');
-		openTickler('Colonoscopy repeat in 3yr',getFutureDate(3)); // 3, 5, or 10yr PHC fix
+	openTickler('Colonoscopy repeat in 3yr',getFutureDate(3)); // 3, 5, or 10yr PHC fix
   } else {
-    ClickPreventions('COLONOSCOPY');
+    console.warn('COLONOSCOPY but no demo');
   }
-
 });
 input12.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input12.setAttribute("title", "Colonoscopy Prevention");
@@ -324,17 +327,17 @@ input13.addEventListener("click", function() {
   	openPrevention('MAM');
     openTickler('Mammo repeat in 2yr',getFutureDate(2));
   } else {
-    ClickPreventions('MAM');
+    console.warn('MAM but no demo');
   }
 });
 input13.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input13.setAttribute("title", "Mammography Prevention");
 input13.setAttribute("disabled", "");
 input13.classList.add('providerdependent'); //for billing
-input11.classList.add('demodependent'); //for prevention billing and tickler
+input13.classList.add('demodependent'); //for prevention billing and tickler
 menuContainer.appendChild(input13);
 
-*/
+
 
 var span1=document.createElement("span");
 span1.id="alert";
@@ -410,6 +413,8 @@ function accessIframe(node) {
     const iframeHeadContent = iframeDoc.head ? iframeDoc.head.innerHTML : "";
 
     // Reset button background colors
+      document.getElementById("mammo").style.backgroundColor = "";
+      document.getElementById("colonoscopy").style.backgroundColor = "";
       document.getElementById("pap").style.backgroundColor = "";
       document.getElementById("psa").style.backgroundColor = "";
       document.getElementById("fit").style.backgroundColor = "";
@@ -438,16 +443,7 @@ function accessIframe(node) {
 
     providerNo = getNoFromString(iframeHeadContent, "providerNo");
 
-    // Enable / disable demographic dependent elements
-    document.querySelectorAll(".demodependent").forEach(el => {
-      el.disabled = demographicNo === "";
-    });
 
-    if (demographicNo === "") {
-        console.log("[accessIframe] No demo here");
-    } else {
-        getTicklers(demographicNo);
-    }
 
     // Enable / disable provider dependent elements
     document.querySelectorAll(".providerdependent").forEach(el => {
@@ -498,19 +494,29 @@ function accessIframe(node) {
     setTimeout(function () {
       const innerIframe = iframeDoc.querySelector(".document-preview");
       if (!innerIframe || !innerIframe.contentDocument) return;
-
       const innerDoc = innerIframe.contentDocument;
       const innerText = innerDoc.body ? innerDoc.body.textContent : "";
+      fetchDemographicFromQueryString(innerText)
+            .then(result => {
+            if (!result) {
+                console.log("No demographic data returned");
+                return;
+            }
+            demographicNo = result.extractedNumber;
+            console.log("[accessIframe] Extracted demographic number:", demographicNo);
+       });
 
       if (
         (innerText.includes("Operative") || innerText.includes("OPERATIVE")) &&
         innerText.includes("colonoscope")
       ) {
-        if (alertElw) alertElw.textContent = "Colonoscopy";
+        const colonoscopy = document.getElementById("colonoscopy");
+        if (colonoscopy) colonoscopy.style.backgroundColor = "aquamarine";
       }
 
       if (innerText.includes("MAMMOGRAM")) {
-        if (alertElw) alertElw.textContent = "Mammo";
+        const mammo = document.getElementById("mammo");
+        if (mammo) mammo.style.backgroundColor = "aquamarine";
       }
 
       if (
@@ -524,12 +530,25 @@ function accessIframe(node) {
       if (
         innerText.includes("ADMISSION NOTE") ||
         innerText.includes("DISCHARGE SUMMARY") ||
+        innerText.includes("General Admission Note") ||
+        innerText.includes("General Discharge Summary") ||
         innerText.includes("Transfer of Care") ||
         innerText.includes("The following patient was admitted to an inpatient unit")
       ) {
         const h = document.getElementById("h");
         if (h) h.style.backgroundColor = "aquamarine";
       }
+
+     // Enable / disable demographic dependent elements
+    document.querySelectorAll(".demodependent").forEach(el => {
+      el.disabled = demographicNo === "";
+    });
+
+    if (demographicNo === "") {
+        console.log("[accessIframe] No demo here");
+    } else {
+        getTicklers(demographicNo);
+    }
     }, 300);
 
     // Remove <br> after alert-wrapper
@@ -553,4 +572,193 @@ function getNoFromString(queryString, key) {
     return match[1]; // The captured group contains the value
   }
   return "";
+}
+
+function getPtFromText(queryString) {
+  const regex = new RegExp(`Patient:\s(\w*,\w*)`,'m'); // pattern for HRM mammo name
+  const match = queryString.match(regex);
+  if (match && match[1]) {
+    return match[1]; // The captured group contains the value
+  }
+}
+
+
+/**
+ * Extract HIN from text, Element, or Document (including iframe.contentDocument)
+ * Expected format: HCN: <digits>
+ *
+ * @param {string | Document | Element | DocumentFragment} input
+ * @returns {string|null}
+ */
+function getHINfromText(input) {
+    let text = "";
+    let detectedType = "unknown";
+
+    // ---- Detect input type ----
+    if (typeof input === "string") {
+        detectedType = "string";
+        text = input;
+
+    } else if (input instanceof HTMLBodyElement) {
+        detectedType = "HTMLBodyElement";
+        text = input.textContent || "";
+
+    } else if (input instanceof Document) {
+        detectedType = "Document";
+        text = input.body ? input.body.textContent : "";
+
+    } else if (input instanceof Element) {
+        detectedType = `Element (${input.tagName})`;
+        text = input.textContent || "";
+
+    } else if (input instanceof DocumentFragment) {
+        detectedType = "DocumentFragment";
+        text = input.textContent || "";
+
+    } else if (input && input.nodeType) {
+        // Fallback for odd DOM nodes
+        detectedType = `DOM Node (nodeType=${input.nodeType})`;
+        text = input.textContent || "";
+   } else {
+        console.warn("[getHINfromText] Unsupported input:", input);
+        return null;
+    }
+
+    console.log(`[getHINfromText] Detected input type: ${detectedType}`);
+
+    if (!text.trim()) {
+        console.warn("[getHINfromText] No text content available");
+        return null;
+    }
+
+    // ---- Regex for HRM mammo HIN ----
+    const regex = /HCN:\s*(\d+)/m;
+    const match = text.match(regex);
+
+    if (match && match[1]) {
+        console.log("[getHINfromText] Regex match:", match[1]);
+        return match[1];
+    }
+
+    console.warn("[getHINfromText] No HIN found");
+    return null;
+}
+
+/**
+ * Extract HIN from text, then fetch demographic data
+ *
+ * @param {string} queryString - iframe body containing HCN
+ * @param {number} timeoutMs - Fetch timeout
+ * @returns {Promise<{ doc: Document, extractedNumber: string | null } | null>}
+ */
+function fetchDemographicFromQueryString(queryString, timeoutMs = 10000) {
+    console.log("[fetchDemographicFromQueryString] Starting process");
+
+    const hin = getHINfromText(queryString);
+
+    if (!hin) {
+        console.warn("[fetchDemographicFromQueryString] Aborting: no HIN extracted");
+        return Promise.resolve(null);
+    }
+
+    console.log("[fetchDemographicFromQueryString] HIN extracted:", hin);
+
+    return fetchDemographicHTML(hin, "search_hin", timeoutMs)
+        .then(result => {
+            console.log("[fetchDemographicFromQueryString] Fetch completed");
+            return result;
+        })
+        .catch(err => {
+            console.error("[fetchDemographicFromQueryString] Error:", err);
+            return null;
+        });
+}
+
+//https://app.avaros.ca/oscar/demographic/demographiccontrol.jsp?search_mode=search_hin&keyword=123456789&orderby=last_name%2C+first_name&dboperation=search_titlename&limit1=0&limit2=10&displaymode=Search&ptstatus=active&fromMessenger=false&outofdomain=
+/**
+ * Fetch demographic search HTML with timeout + extract numeric value
+ * Returns null if ZERO or MORE THAN ONE matches are found
+ *
+ * @param {string} keyword - Search keyword (e.g. HIN, name, etc.)
+ * @param {string} searchMode - Search mode (e.g. "search_hin")
+ * @param {number} timeoutMs
+ * @returns {Promise<{ doc: Document, extractedNumber: string | null }>}
+ */
+function fetchDemographicHTML(keyword, searchMode, timeoutMs = 10000) {
+    const baseUrl = "https://app.avaros.ca/oscar/demographic/demographiccontrol.jsp";
+
+    const params = new URLSearchParams({
+        search_mode: searchMode,
+        keyword: keyword,
+        orderby: "last_name, first_name",
+        dboperation: "search_titlename",
+        limit1: "0",
+        limit2: "10",
+        displaymode: "Search",
+        ptstatus: "active",
+        fromMessenger: "false",
+        outofdomain: ""
+    });
+
+    const url = `${baseUrl}?${params.toString()}`;
+
+    console.log("Fetching demographic HTML...");
+    console.log("Request URL:", url);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+        console.warn("Fetch aborted due to timeout");
+        controller.abort();
+    }, timeoutMs);
+
+    return fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Accept": "text/html" },
+        signal: controller.signal
+    })
+    .then(response => {
+        console.log("Response status:", response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        clearTimeout(timeoutId);
+        console.log("HTML received (length):", html.length);
+
+        // ---- STRICT REGEX MATCHING ----
+        const regex = new RegExp(`dboperation=search_detail\\'\\)\\"\\s>(\\d*)`,'g');
+        const matches = [...html.matchAll(regex)];
+
+        console.log("Total regex matches found:", matches.length);
+
+        let extractedNumber = null;
+
+        if (matches.length === 2) { // the regex will throw twice for every succesful demo search
+            extractedNumber = matches[0][1];
+            console.log("Exactly one demographicNo found:", extractedNumber);
+        } else if (matches.length > 2) {
+            console.warn("More than one match found — returning null");
+        } else {
+            console.warn("No matches found");
+        }
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        return { doc, extractedNumber };
+    })
+    .catch(error => {
+        clearTimeout(timeoutId);
+
+        if (error.name === "AbortError") {
+            console.error("Fetch aborted (timeout)");
+        } else {
+            console.error("Fetch error:", error);
+        }
+
+        throw error;
+    });
 }
