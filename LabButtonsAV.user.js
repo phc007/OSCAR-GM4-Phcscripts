@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7
+// @version  3.7.1
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -517,17 +517,20 @@ function accessIframe(node) {
           getTicklers(demographicNo);
        });
 
-      if (
-        (innerText.includes("Operative") || innerText.includes("OPERATIVE")) &&
-        innerText.includes("colonoscope")
-      ) {
+      if ((innerText.includes("Operative") || innerText.includes("OPERATIVE")) && innerText.includes("colonoscope")) {
         const colonoscopy = document.getElementById("colonoscopy");
-        if (colonoscopy) colonoscopy.style.backgroundColor = "aquamarine";
+        if (colonoscopy) {
+            colonoscopy.style.backgroundColor = "aquamarine";
+            colonoscopy.disabled=false;
+        }
       }
 
       if (innerText.includes("MAMMOGRAM")) {
         const mammo = document.getElementById("mammo");
-        if (mammo) mammo.style.backgroundColor = "aquamarine";
+        if (mammo) {
+            mammo.style.backgroundColor = "aquamarine";
+            mammo.disabled = false;
+        }
       }
 
       if (
