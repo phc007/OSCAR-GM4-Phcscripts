@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.6
+// @version  3.7
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -221,6 +221,7 @@ menuContainer.appendChild(input4);
 var input5=document.createElement("input");
 input5.type="button";
 input5.value="Rx";
+input5.id="rx";
 input5.addEventListener("click", function() {ButtonFunction("Rx reviewed and request granted");});
 input5.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input5.setAttribute("title", "Rx request approved");
@@ -338,7 +339,8 @@ input13.classList.add('providerdependent'); //for billing
 input13.classList.add('demodependent'); //for prevention billing and tickler
 menuContainer.appendChild(input13);
 
-
+var br1=document.createElement("br");
+menuContainer.appendChild(br1);
 
 var span1=document.createElement("span");
 span1.id="alert";
@@ -421,6 +423,7 @@ function accessIframe(node) {
       document.getElementById("fit").style.backgroundColor = "";
       document.getElementById("er").style.backgroundColor = "";
       document.getElementById("h").style.backgroundColor = "";
+      document.getElementById("rx").style.backgroundColor = "";
 
     // Clear alert text
     const alertEl = document.getElementById("alert");
@@ -442,9 +445,13 @@ function accessIframe(node) {
       getNoFromString(iframeHeadContent, "demographicNo") ||
       getNoFromString(iframeHeadContent, "demographicID");
 
+    if (demographicNo === "") {
+        console.log("[accessIframe] No demo here, so ticklers not checked");
+    } else {
+        getTicklers(demographicNo);
+    }
+
     providerNo = getNoFromString(iframeHeadContent, "providerNo");
-
-
 
     // Enable / disable provider dependent elements
     document.querySelectorAll(".providerdependent").forEach(el => {
@@ -468,7 +475,9 @@ function accessIframe(node) {
          <a id="hideraw" onclick="document.getElementById('${theId}').style.display='none'">Hide HL7</a>`
       );
     }
-
+    if (document.getElementById("documentDescription") && document.getElementById("documentDescription").value.indexOf("Authorization") > -1){
+        document.getElementById("rx").style.backgroundColor = "aquamarine";
+    }
     // Scan raw HL7 content
     if (rawHl7El) {
       const elementText = rawHl7El.textContent || "";
@@ -505,6 +514,7 @@ function accessIframe(node) {
             }
             demographicNo = result.extractedNumber;
             console.log("[accessIframe] Extracted demographic number:", demographicNo);
+          getTicklers(demographicNo);
        });
 
       if (
@@ -545,11 +555,6 @@ function accessIframe(node) {
       el.disabled = demographicNo === "";
     });
 
-    if (demographicNo === "") {
-        console.log("[accessIframe] No demo here");
-    } else {
-        getTicklers(demographicNo);
-    }
     }, 300);
 
     // Remove <br> after alert-wrapper
