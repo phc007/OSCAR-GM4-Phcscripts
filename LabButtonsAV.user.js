@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.1
+// @version  3.7.2
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -475,7 +475,7 @@ function accessIframe(node) {
          <a id="hideraw" onclick="document.getElementById('${theId}').style.display='none'">Hide HL7</a>`
       );
     }
-    if (document.getElementById("documentDescription") && document.getElementById("documentDescription").value.indexOf("Authorization") > -1){
+    if (document.getElementById("documentDescription") && (document.getElementById("documentDescription").value.indexOf("Authorization") > -1 || document.getElementById("documentDescription").value.indexOf("Rx") > -1)){
         document.getElementById("rx").style.backgroundColor = "aquamarine";
     }
     // Scan raw HL7 content
@@ -547,7 +547,8 @@ function accessIframe(node) {
         innerText.includes("General Admission Note") ||
         innerText.includes("General Discharge Summary") ||
         innerText.includes("Transfer of Care") ||
-        innerText.includes("The following patient was admitted to an inpatient unit")
+        innerText.includes("The following patient was admitted to an inpatient unit")||
+        innerText.includes("discharged from an inpatient unit")
       ) {
         const h = document.getElementById("h");
         if (h) h.style.backgroundColor = "aquamarine";
