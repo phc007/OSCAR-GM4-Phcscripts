@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.2
+// @version  3.7.3
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -130,6 +130,7 @@ function getTicklers(demoNumber) {
         })
         .then(function (str) {
             if (!str) return;
+            var totalTicklers = str.split("                            Edit").length -1;
             var regex = /Active<\/TD>[\n\t]*<TD ROWSPAN="1" class="[\w]*Red">[\s\w]*<div[\s\w"=-]*>\s*([\s\w]*\w)\s*</gmi;
             var array;
             var ticklers = [];
@@ -155,11 +156,11 @@ function getTicklers(demoNumber) {
             outputEl.textContent += " ";
             var a = document.createElement('a');
             a.href = newURL;
-            a.title = "Click link to open tickler list";
+            a.title = "Click link to open list of " + totalTicklers + " ticklers ("+ ticklers.length + " overdue)";
             a.target = '_blank';
-            a.innerHTML = ticklers.length + " ticklers";
+            a.innerHTML = ticklers.length + "/" + totalTicklers + " ticklers";
             outputEl.append(a);
-            console.log("[getTicklers] Found " + ticklers.length + " ticklers");
+            console.log("[getTicklers] Found " + ticklers.length + " overdue ticklers out of " + totalTicklers);
         })
         .catch(function (error) {
             console.error("[getTicklers] Fetch error:", error);
