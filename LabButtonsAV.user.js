@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.3
+// @version  3.7.4
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -15,10 +15,7 @@
 var demographicNo = "";
 var providerNo = "";
 var segmentID = "";
-console.log("referrer:"+document.referrer);
-console.log("parent parent location:"+window.parent.window.parent.location);
-console.log("parent location:"+window.parent.location);
-console.log("parent top location:"+window.top.location);
+
 function ButtonFunction(str) {
   console.log('[ButtonFunction] Started with value:', str);
 
@@ -92,6 +89,10 @@ function ButtonFunction(str) {
 
 //https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=4714
 function openPrevention(prev){
+  if (demographicNo === "") {
+      console.log("[openPrevention] no demographic to add prevention to");
+      return;
+  }
   var preventionURL = 'https://app.avaros.ca/oscar/oscarPrevention/index.jsp?demographic_no=';
   preventionURL += demographicNo;
   preventionURL += '&prevention='+prev // pass parameter for prevention greasemonkey
@@ -104,6 +105,10 @@ function openPrevention(prev){
 
 //https://app.avaros.ca/oscar/tickler/ForwardDemographicTickler.do?docType=HL7&docId=989236&demographic_no=802
 function openTickler(tickler, adate){
+   if (demographicNo === "") {
+      console.log("[openTickler] no demographic to add tickler to");
+      return;
+  }
   var ticklerURL = 'https://app.avaros.ca/oscar/tickler/ForwardDemographicTickler.do?xml_appointment_date='+adate+'&demographic_no=' + demographicNo;
   ticklerURL += '&name=' + demographicNo;
   if (segmentID) { ticklerURL += '&docType=HL7&docId=' + segmentID; }
@@ -169,6 +174,10 @@ function getTicklers(demoNumber) {
 
 //https://app.avaros.ca/av/billing2/invoice/2808?billRegion=ON&appointment_no=0&demographic_name=&demographic_no=2808&providerview=1001&user_no=1001&apptProvider_no=none&start_time=00%3A00%3A00&xml_provider=1001
 function postBilling(bcode){
+   if (demographicNo === "") {
+      console.log("[postBilling] no demographic to add billing to");
+      return;
+  }
   var billingURL = "https://app.avaros.ca/av/billing2/invoice/";
   billingURL += demographicNo;
   billingURL += '?billRegion=ON&appointment_no=0&demographic_name=&demographic_no='+demographicNo;
@@ -186,6 +195,14 @@ function postBilling(bcode){
 const menuContainer = document.createElement('div');
 menuContainer.id = 'myGreasemonkeyButtons';
 menuContainer.setAttribute("style", "font-size:12px; position:fixed;top:8px;left:1120px;");
+
+var input0=document.createElement("input");
+input0.type="button";
+input0.value="Ack";
+input0.addEventListener("click", function() {ButtonFunction("");});
+input0.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
+input0.setAttribute("title", "Acknowledged");
+menuContainer.appendChild(input0);
 
 var input1=document.createElement("input");
 input1.type="button";
@@ -266,7 +283,6 @@ input9.addEventListener("click", function() {
 });
 input9.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input9.setAttribute("title", "HPV Screen Prevention");
-input9.setAttribute("disabled", "");
 input9.classList.add('demodependent');
 menuContainer.appendChild(input9);
 
@@ -280,7 +296,6 @@ input10.addEventListener("click", function() {
 });
 input10.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input10.setAttribute("title", "Prostatic Specific Antigen");
-input10.setAttribute("disabled", "");
 input10.classList.add('demodependent');
 menuContainer.appendChild(input10);
 
@@ -295,7 +310,6 @@ input11.addEventListener("click", function() {
 });
 input11.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input11.setAttribute("title", "Fecal Immunochemical Test");
-input11.setAttribute("disabled", "");
 input11.classList.add('demodependent');
 menuContainer.appendChild(input11);
 
@@ -316,7 +330,6 @@ input12.addEventListener("click", function() {
 });
 input12.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input12.setAttribute("title", "Colonoscopy Prevention");
-input12.setAttribute("disabled", "");
 input12.classList.add('providerdependent'); //for billing
 menuContainer.appendChild(input12);
 
@@ -335,7 +348,6 @@ input13.addEventListener("click", function() {
 });
 input13.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input13.setAttribute("title", "Mammography Prevention");
-input13.setAttribute("disabled", "");
 input13.classList.add('providerdependent'); //for billing
 input13.classList.add('demodependent'); //for prevention billing and tickler
 menuContainer.appendChild(input13);
@@ -517,6 +529,11 @@ function accessIframe(node) {
             console.log("[accessIframe] Extracted demographic number:", demographicNo);
           getTicklers(demographicNo);
        });
+
+      // Enable / disable demo dependent elements
+      document.querySelectorAll(".demodependent").forEach(el => {
+            el.disabled = demographicNo === "";
+      });
 
       if ((innerText.includes("Operative") || innerText.includes("OPERATIVE")) && innerText.includes("colonoscope")) {
         const colonoscopy = document.getElementById("colonoscopy");
