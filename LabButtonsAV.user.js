@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.4
+// @version  3.7.5
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -136,7 +136,7 @@ function getTicklers(demoNumber) {
         .then(function (str) {
             if (!str) return;
             var totalTicklers = str.split("                            Edit").length -1;
-            var regex = /Active<\/TD>[\n\t]*<TD ROWSPAN="1" class="[\w]*Red">[\s\w]*<div[\s\w"=-]*>\s*([\s\w]*\w)\s*</gmi;
+            var regex = /Active<\/TD>[\n\t]*<TD ROWSPAN="1" class="[a-zA-Z]*Red">[\s\w]*<div[\s\w"=-]*>\s*(.*)\s*</gmi;
             var array;
             var ticklers = [];
             var i = 0;
@@ -155,10 +155,11 @@ function getTicklers(demoNumber) {
             }
             if (ticklers.length > 0) {
                 outputEl.style.color = "red";
+                outputEl.textContent += " ";
             } else {
                 outputEl.style.color = "black";
+                outputEl.textContent = "";
             }
-            outputEl.textContent += " ";
             var a = document.createElement('a');
             a.href = newURL;
             a.title = "Click link to open list of " + totalTicklers + " ticklers ("+ ticklers.length + " overdue)";
@@ -507,12 +508,15 @@ function accessIframe(node) {
         if (psa) psa.style.backgroundColor = "aquamarine";
       }
 
-      if (elementText.includes("FECAL IMMUNOCHEMICAL TEST")) {
+      if (elementText.includes("Fecal Immunochemical Test")) {
         const fit = document.getElementById("fit");
         if (fit) fit.style.backgroundColor = "aquamarine";
       }
     }
-
+     // Enable / disable demographic dependent elements
+    document.querySelectorAll(".demodependent").forEach(el => {
+      el.disabled = demographicNo === "";
+    });
     // Detect nested iframe content (colonoscopy / mammography / ER / hospital)
     setTimeout(function () {
       const innerIframe = iframeDoc.querySelector(".document-preview");
