@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.5
+// @version  3.7.6
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -195,7 +195,9 @@ function postBilling(bcode){
 // build a menu of buttons
 const menuContainer = document.createElement('div');
 menuContainer.id = 'myGreasemonkeyButtons';
-menuContainer.setAttribute("style", "font-size:12px; position:fixed;top:8px;left:1120px;");
+//menuContainer.setAttribute("style", "font-size:12px; position:fixed;top:8px;left:1120px;"); // in the top bar
+//menuContainer.setAttribute("style", "font-size:12px; position:fixed;top:44px;left:90px;"); // Below the top bar and just past the left black bar
+menuContainer.setAttribute("style", "font-size:12px; position:fixed;top:44px;left:380px;"); // Below the top bar and just past the second bar
 
 var input0=document.createElement("input");
 input0.type="button";
@@ -271,6 +273,23 @@ input8.addEventListener("click", function() {ButtonFunction("Consultant ordered 
 input8.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input8.setAttribute("title", "Specialist managed patient");
 menuContainer.appendChild(input8);
+
+var input14=document.createElement("input");
+input14.type="button";
+input14.value="Tickler";
+input14.addEventListener("click", function() {ButtonFunction("Tickler set for this lab/pt");});
+input14.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
+input14.setAttribute("title", "Tickler set");
+menuContainer.appendChild(input14);
+
+var input15=document.createElement("input");
+input15.type="button";
+input15.value="Recalled";
+input15.id="recalled";
+input15.addEventListener("click", function() {ButtonFunction("This patient has been recalled to deal with this result");});
+input15.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
+input15.setAttribute("title", "Recall set");
+menuContainer.appendChild(input15);
 
 var input9=document.createElement("input");
 input9.type="button";
@@ -353,8 +372,8 @@ input13.classList.add('providerdependent'); //for billing
 input13.classList.add('demodependent'); //for prevention billing and tickler
 menuContainer.appendChild(input13);
 
-var br1=document.createElement("br");
-menuContainer.appendChild(br1);
+//var br1=document.createElement("br");
+//menuContainer.appendChild(br1);
 
 var span1=document.createElement("span");
 span1.id="alert";
