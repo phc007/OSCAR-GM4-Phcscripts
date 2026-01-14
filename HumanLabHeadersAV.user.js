@@ -2,19 +2,19 @@
 // @name           Lab Reheader AV
 // @author	       Peter Hutten-Czapski
 // @namespace      Phcscript
-// @version        2.7
+// @version        2.8
 // @description    Replaces Lab Headers with Human readable ones
 // @updateURL 	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/HumanLabHeadersAV.user.js
 // @downloadURL	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/HumanLabHeadersAV.user.js
-// @include        *av/echart*
-// @include        *av/providerinbox/inbox*
-// @include        *oscar/oscarEncounter/oscarConsultationRequest/attachConsultation2.jsp*
+// @include        https://app.avaros.ca/av/echart*
+// @include        https://app.avaros.ca/av/providerinbox/inbox*
 // @require https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js#sha512=MXe5EK5gyK+fbhwQy/dukwz9fw71HZcsM4KsyDBDTvMyjymkiO0M5qqU0lF4vqLI4VnKf1+DIKf1GM6RFkO8PA==
 // @require https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/waitForKeyElements.js
 // ==/UserScript==
 
 jQuery.noConflict();
 
+/*
 (function() {
 	'use strict';
 	// style patch for attachConsultation2.jsp
@@ -29,6 +29,7 @@ jQuery.noConflict();
 		document.head.appendChild(styleElement); 
 
 })();
+*/
 
 function startIt() {
 	nameExchange();
@@ -40,7 +41,7 @@ function startIt() {
       	nameExchange();
 		},1000);
 	});
-  // Trigger for consultation attachements AV
+/*  // Trigger for consultation attachements AV
  	jQuery(".list-header").mouseup(function() {
     console.log("mouseup");
     // Code to be executed when the mouse button is released over the element
@@ -48,6 +49,7 @@ function startIt() {
       	nameExchange();
 		},1000);
 	});
+    */
 }
 
 function nameExchange() {
