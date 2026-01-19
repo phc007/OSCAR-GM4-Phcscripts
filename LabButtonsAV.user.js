@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.7
+// @version  3.7.8
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -290,6 +290,9 @@ input15.addEventListener("click", function() {ButtonFunction("This patient has b
 input15.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input15.setAttribute("title", "Recall set");
 menuContainer.appendChild(input15);
+
+const textNode = document.createTextNode(" | ");
+menuContainer.appendChild(textNode);
 
 var input9=document.createElement("input");
 input9.type="button";
