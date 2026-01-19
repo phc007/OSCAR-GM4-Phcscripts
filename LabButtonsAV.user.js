@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.6
+// @version  3.7.7
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -326,7 +326,7 @@ input11.id="fit";
 input11.addEventListener("click", function() {
   openPrevention('FIT');
   openTickler('FIT repeat in 2yr',getFutureDate(2));
-  postBilling("Q152A"); //Colorectal Cancer Screening Test Completion Fee
+  postBilling("Q133A"); //Colorectal Cancer Screening Test Completion Fee
 });
 input11.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input11.setAttribute("title", "Fecal Immunochemical Test");
@@ -508,7 +508,10 @@ function accessIframe(node) {
          <a id="hideraw" onclick="document.getElementById('${theId}').style.display='none'">Hide HL7</a>`
       );
     }
-    if (document.getElementById("documentDescription") && (document.getElementById("documentDescription").value.indexOf("Authorization") > -1 || document.getElementById("documentDescription").value.indexOf("Rx") > -1)){
+    if (document.getElementById("documentDescription") &&
+        (document.getElementById("documentDescription").value.indexOf("Authorization") > -1 ||
+         document.getElementById("documentDescription").value.indexOf("Refill") > -1 ||
+         document.getElementById("documentDescription").value.indexOf("Rx") > -1)){
         document.getElementById("rx").style.backgroundColor = "aquamarine";
     }
     // Scan raw HL7 content
