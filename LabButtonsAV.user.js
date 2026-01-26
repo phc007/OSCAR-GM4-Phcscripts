@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.8
+// @version  3.7.9
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -199,6 +199,7 @@ menuContainer.id = 'myGreasemonkeyButtons';
 //menuContainer.setAttribute("style", "font-size:12px; position:fixed;top:44px;left:90px;"); // Below the top bar and just past the left black bar
 menuContainer.setAttribute("style", "font-size:12px; position:fixed;top:44px;left:380px;"); // Below the top bar and just past the second bar
 
+// these buttons merely set a comment
 var input0=document.createElement("input");
 input0.type="button";
 input0.value="Ack";
@@ -291,9 +292,16 @@ input15.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;"
 input15.setAttribute("title", "Recall set");
 menuContainer.appendChild(input15);
 
-const textNode = document.createTextNode(" | ");
-menuContainer.appendChild(textNode);
+var input16=document.createElement("input");
+input16.type="button";
+input16.value="Msg'd";
+input16.id="messaged";
+input16.addEventListener("click", function() {ButtonFunction("Patient notified by message");});
+input16.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 9px;"); //note extra margin to the right
+input16.setAttribute("title", "Patient notified by message");
+menuContainer.appendChild(input16);
 
+// these buttons perform multiple functions
 var input9=document.createElement("input");
 input9.type="button";
 input9.value="PAP";
