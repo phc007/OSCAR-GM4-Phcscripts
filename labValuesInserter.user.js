@@ -2,14 +2,16 @@
 // @name           Lab Values Inserter
 // @description    Only fetches historical lab values (eGFR, A1C, etc.) if current value is abnormal. Adds tooltip with full history.
 // @include        */lab/CA/ALL/labDisplay.jsp*
-// @version        6.0
-// @updateURL 	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/labValuesInserter.user.js
+// @version        6.1
+// @updateURL 	    https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/labValuesInserter.user.js
 // @downloadURL	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/labValuesInserter.user.js
 // @namespace      Phcscript
 // @grant          none
 // ==/UserScript==
 
 window.addEventListener("load", function () {
+    const start = Date.now();
+    console.log("starting timer...");
     const demoNo = getDemoNo();
     if (!demoNo) {
         console.error("Demographic number not found!");
@@ -111,7 +113,7 @@ window.addEventListener("load", function () {
             testName: "Ferritin",
             values: [],
             dates: [],
-            normalRange: { min: 45, max: 200 },
+            normalRange: { min: 100, max: 200 },
         },
         {
             name: "TSH",
@@ -149,6 +151,9 @@ window.addEventListener("load", function () {
                     const value = parseFloat(resultText);
                     if (!isNaN(value) && (value < lab.normalRange.min || value > lab.normalRange.max)) {
                         if (!abnormalLabs.includes(lab)) {
+                            //var code = a.getAttribute('title').split(': ')[1];
+                            //lab.identifier = code;
+                            //console.log(code);
                             abnormalLabs.push(lab);
                         }
                     }
@@ -158,23 +163,27 @@ window.addEventListener("load", function () {
     });
 
     // Fetch and insert only for abnormal labs
-    fetchLabsSequentially(0);
+fetchLabsSequentially().then(() => {
+    console.log("All labs fetched and inserted!");
+});
+ 
+async function fetchLabsSequentially() {
+    for (let i = 0; i < abnormalLabs.length; i++) {
+        const lab = abnormalLabs[i];
 
-    function fetchLabsSequentially(index = 0) {
-        if (index >= abnormalLabs.length) {
-            abnormalLabs.forEach(insertLabValues);
-            return;
-        }
+        // Fetch values for this lab
+        await fetchLabValues(lab, demoNo);
 
-        const lab = abnormalLabs[index];
-        fetchLabValues(lab, demoNo, () => {
-            setTimeout(() => {
-                fetchLabsSequentially(index + 1);
-            }, 500);
-        });
+        // Insert values immediately after fetching
+        insertLabValues(lab);
+        const ms = Date.now() - start;
+        console.log(`Inserted values for ${lab.name} at ${Math.floor(ms / 1000)} sec`);
     }
 
-async function fetchLabValues(lab, demoNo, callback) {
+}
+
+
+async function fetchLabValues(lab, demoNo) {
     const pathArray = window.location.pathname.split("/");
     const newURL = `${window.location.protocol}//${window.location.host}/${pathArray[1]}/lab/CA/ON/labValues.jsp?testName=${encodeURIComponent(
         lab.testName
@@ -211,7 +220,7 @@ async function fetchLabValues(lab, demoNo, callback) {
             if (name !== lab.testName) return;
 
             const value = cells[1].textContent.trim();
-            const dateTime = cells[5].textContent.trim(); // e.g., "2025-11-20 14:39:00"
+            const dateTime = cells[5].textContent.trim();
 
             // Extract only the YYYY-MM-DD part
             const dateMatch = dateTime.match(/^(\d{4}-\d{2}-\d{2})/);
@@ -224,11 +233,8 @@ async function fetchLabValues(lab, demoNo, callback) {
         });
     } catch (error) {
         console.error(`Error fetching lab: ${lab.name}`, error);
-    } finally {
-        callback();
     }
 }
-
 function insertLabValues(lab) {
     const rows = document.querySelectorAll("tr.NormalRes, tr.AbnormalRes, tr.HiLoRes");
 
