@@ -113,7 +113,7 @@ window.addEventListener("load", function () {
             testName: "Ferritin",
             values: [],
             dates: [],
-            normalRange: { min: 100, max: 200 },
+            normalRange: { min: 45, max: 200 },
         },
         {
             name: "TSH",
