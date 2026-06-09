@@ -1,8 +1,9 @@
  // ==UserScript==
 // @name           Lab Values Inserter
+// @author         Various community contributors
 // @description    Only fetches historical lab values (eGFR, A1C, etc.) if current value is abnormal. Adds tooltip with full history.
 // @include        */lab/CA/ALL/labDisplay.jsp*
-// @version        6.1
+// @version        6.2
 // @updateURL 	    https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/labValuesInserter.user.js
 // @downloadURL	   https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/labValuesInserter.user.js
 // @namespace      Phcscript
@@ -148,7 +149,8 @@ window.addEventListener("load", function () {
                 const lab = labConfigs.find(l => testName === l.testName);
                 if (lab && i + 1 < cells.length) {
                     const resultText = cells[i + 1].textContent.trim();
-                    const value = parseFloat(resultText);
+                    const valueMatch = resultText.match(/-?\d+(?:\.\d+)?/); // extract the number portion of <10 or >60
+                    const value = valueMatch ? parseFloat(valueMatch[0]) : NaN;
                     if (!isNaN(value) && (value < lab.normalRange.min || value > lab.normalRange.max)) {
                         if (!abnormalLabs.includes(lab)) {
                             //var code = a.getAttribute('title').split(': ')[1];
@@ -250,8 +252,9 @@ function insertLabValues(lab) {
                   if (anchorText === lab.testName) {
                     const resultCell = cells[cellIndex + 1];
                     if (resultCell) {
-                        const recentResult = parseFloat(resultCell.textContent.trim());
-
+                        const resultText = cells[i + 1].textContent.trim();
+                        const valueMatch = resultText.match(/-?\d+(?:\.\d+)?/); // extract the number portion of <10 or >60
+                        const recentResult = valueMatch ? parseFloat(valueMatch[0]) : NaN;                        
                         if (!isNaN(recentResult) &&
                             (recentResult < lab.normalRange.min || recentResult > lab.normalRange.max)) {
                             const span = document.createElement("span");
