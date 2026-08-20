@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.7.9
+// @version  3.8.0
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -337,7 +337,7 @@ input11.id="fit";
 input11.addEventListener("click", function() {
   openPrevention('FIT');
   openTickler('FIT repeat in 2yr',getFutureDate(2));
-  postBilling("Q133A"); //Colorectal Cancer Screening Test Completion Fee
+  postBilling("Q152A"); //Colorectal Cancer Screening Test Completion Fee as of July 2026
 });
 input11.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
 input11.setAttribute("title", "Fecal Immunochemical Test");
