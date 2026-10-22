@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        BMI and SI to English converter
 // @author		Peter Hutten-Czapski
-// @description Calculates BMI, WHtR and Converts from kg to lb, cm to in.  Currently works in most OSCAR forks
-// @version     1.4
+// @description Calculates BMI and WHtR, converts kg/lb, cm/ft-in and waist inches/cm. Uses prior height when current HT is blank.
+// @version     1.5
 // @namespace   Phcscript
 // @updateURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/WtHtBMI.user.js
 // @downloadURL https://raw.githubusercontent.com/phc007/OSCAR-GM4-Phcscripts/refs/heads/main/WtHtBMI.user.js
@@ -26,8 +26,7 @@
         $(function () {
             var form = document.getElementById('theForm') || document;
 
-            // Discover a measurement using its hidden inputType field.
-            // The row number may be different on every OSCAR page.
+            // Find measurements by hidden inputType, not row number.
             function findMeasurement(type) {
                 var result = null;
 
@@ -40,21 +39,24 @@
                         return;
                     }
 
-                    var row = match[1];
-                    var $value = $(form).find(
-                        'input[name="value(inputValue-' + row + ')"]'
+                    var rowNumber = match[1];
+                    var $input = $(form).find(
+                        'input[name="value(inputValue-' +
+                        rowNumber + ')"]'
                     ).first();
 
-                    if (!$value.length) {
+                    if (!$input.length) {
                         return;
                     }
 
                     result = {
                         type: type,
-                        row: row,
-                        input: $value,
+                        row: rowNumber,
+                        input: $input,
+                        rowElement: $input.closest('tr'),
                         comment: $(form).find(
-                            'input[name="value(comments-' + row + ')"]'
+                            'input[name="value(comments-' +
+                            rowNumber + ')"]'
                         ).first()
                     };
 
@@ -64,14 +66,15 @@
                 return result;
             }
 
-            // Only the fields actually present on the page are returned.
             var height = findMeasurement('HT');
             var weight = findMeasurement('WT');
             var bmi = findMeasurement('BMI');
             var waist = findMeasurement('WAIS');
             var waistHeight = findMeasurement('WHTR');
 
-            var blue = { 'background-color': '#d9e6f2' };
+            var blue = {
+                'background-color': '#d9e6f2'
+            };
 
             function highlight(measurement) {
                 if (measurement && measurement.input.length) {
@@ -85,12 +88,14 @@
                 }
             }
 
-            function readPositive(measurement) {
-                if (!measurement) {
-                    return null;
-                }
+            function rawValue(measurement) {
+                return measurement
+                    ? $.trim(String(measurement.input.val() || ''))
+                    : '';
+            }
 
-                var value = $.trim(measurement.input.val());
+            function readPositive(measurement) {
+                var value = rawValue(measurement);
 
                 if (value === '' || !$.isNumeric(value)) {
                     return null;
@@ -98,7 +103,112 @@
 
                 value = Number(value);
 
+                return isFinite(value) && value > 0
+                    ? value
+                    : null;
+            }
+
+            // Find the historical value in the note row immediately
+            // following the HT measurement row. Stop before the next
+            // measurement, so a later measurement's history is not used.
+            function getPriorHeightCm() {
+                if (!height || !height.rowElement.length) {
+                    return null;
+                }
+
+                var $row = height.rowElement.next();
+                var $history = $();
+
+                while ($row.length && !$row.hasClass('data')) {
+                    if ($row.hasClass('note')) {
+                        var label = $.trim(
+                            $row.children('td').eq(0).text()
+                        );
+
+                        if (/the last value/i.test(label)) {
+                            $history = $row;
+                            break;
+                        }
+                    }
+
+                    $row = $row.next();
+                }
+
+                if (!$history.length) {
+                    return null;
+                }
+
+                var $cells = $history.children('td');
+
+                if ($cells.length < 3) {
+                    return null;
+                }
+
+                var units = $.trim($cells.eq(1).text()).toLowerCase();
+                var valueText = $.trim($cells.eq(2).text());
+
+                // Do not use empty, non-numeric, or non-positive history.
+                if (valueText === '' || !$.isNumeric(valueText)) {
+                    return null;
+                }
+
+                var value = Number(valueText);
+
+                if (!isFinite(value) || value <= 0) {
+                    return null;
+                }
+
                 return isFinite(value) && value > 0 ? value : null;
+            }
+
+            // Resolve height for calculations:
+            // 1. A non-empty current HT value always takes precedence.
+            // 2. Only a blank current HT field permits historical fallback.
+            // 3. Accept feet/inches notation as well as numeric centimetres.
+            function getHeightCm() {
+                if (!height) {
+                    return null;
+                }
+
+                var current = rawValue(height);
+
+                if (current !== '') {
+                    if ($.isNumeric(current)) {
+                        var cm = Number(current);
+
+                        return isFinite(cm) && cm > 0 ? cm : null;
+                    }
+
+                    var match = current.match(
+                        /^\s*(\d+)\s*'\s*(?:(\d+)\s*"?\s*)?$/
+                    );
+
+                    if (match) {
+                        var feet = Number(match[1]);
+                        var inches = match[2] === undefined
+                            ? 0
+                            : Number(match[2]);
+
+                        if (inches >= 12) {
+                            return null;
+                        }
+
+                        var convertedCm =
+                            feet * 30.48 + inches * 2.54;
+
+                        return isFinite(convertedCm) &&
+                               convertedCm > 0
+                            ? convertedCm
+                            : null;
+                    }
+
+                    // Non-empty but invalid current entry:
+                    // do not silently substitute an old height.
+                    return null;
+                }
+
+                // Current HT is blank: use the previous height if available.
+                return getPriorHeightCm();
             }
 
             function setCalculated(measurement, value, digits) {
@@ -106,7 +216,9 @@
                     return;
                 }
 
-                if (value === null || !isFinite(value) || value <= 0) {
+                if (value === null ||
+                    !isFinite(value) ||
+                    value <= 0) {
                     measurement.input.val('');
                     return;
                 }
@@ -122,31 +234,39 @@
                 }
 
                 var kg = readPositive(weight);
-                var cm = readPositive(height);
+                var cm = getHeightCm();
 
                 if (kg === null || cm === null) {
                     bmi.input.val('');
                     return;
                 }
 
-                setCalculated(bmi, kg / Math.pow(cm / 100, 2), 1);
+                setCalculated(
+                    bmi,
+                    kg / Math.pow(cm / 100, 2),
+                    1
+                );
             }
 
-            // Waist-to-height ratio: both measurements must use the same units.
+            // Waist-to-height ratio; both measurements in cm.
             function calcWaistHeightRatio() {
                 if (!waistHeight) {
                     return;
                 }
 
                 var waistCm = readPositive(waist);
-                var heightCm = readPositive(height);
+                var heightCm = getHeightCm();
 
                 if (waistCm === null || heightCm === null) {
                     waistHeight.input.val('');
                     return;
                 }
 
-                setCalculated(waistHeight, waistCm / heightCm, 2);
+                setCalculated(
+                    waistHeight,
+                    waistCm / heightCm,
+                    2
+                );
             }
 
             function updateCalculations() {
@@ -162,7 +282,9 @@
                     return;
                 }
 
-                var kg = Math.round(pounds * 0.45359237 * 10) / 10;
+                var kg = Math.round(
+                    pounds * 0.45359237 * 10
+                ) / 10;
 
                 if (confirm(
                     'Convert ' + pounds + ' pounds to ' + kg + ' kg?'
@@ -175,7 +297,7 @@
 
             // Feet/inches -> centimetres on double-click.
             function heightEnglishToMetric() {
-                var value = $.trim(height.input.val());
+                var value = rawValue(height);
                 var match = value.match(
                     /^\s*(\d+)\s*'\s*(?:(\d+)\s*"?\s*)?$/
                 );
@@ -208,7 +330,6 @@
                 }
             }
 
-            // Centimetres -> English units in the comment field.
             function convertWeightComment() {
                 var kg = readPositive(weight);
 
@@ -243,7 +364,10 @@
                 var cm = readPositive(waist);
 
                 if (cm !== null) {
-                    setComment(waist, (cm / 2.54).toFixed(1) + ' inches');
+                    setComment(
+                        waist,
+                        (cm / 2.54).toFixed(1) + ' inches'
+                    );
                 }
             }
 
@@ -255,29 +379,36 @@
                     return;
                 }
 
-                var cm = Math.round(inches * 2.54 * 10) / 10;
+                var cm = Math.round(
+                    inches * 2.54 * 10
+                ) / 10;
 
                 if (confirm(
                     'Convert ' + inches + ' inches to ' + cm + ' cm?'
                 )) {
                     waist.input.val(cm);
                     convertWaistComment();
-                    calcWaistHeightRatio();
+                    updateCalculations();
                 }
             }
 
-            // Highlight only the calculated fields that exist.
+            // Highlight editable conversion fields and calculated fields.
+            highlight(height);
+            highlight(weight);
+            highlight(waist);
             highlight(bmi);
             highlight(waistHeight);
 
-            // Register handlers only for measurements that exist.
             if (weight) {
                 weight.input.on('input', calcBMI);
+
                 weight.input.on('change', function () {
                     convertWeightComment();
                     calcBMI();
                 });
+
                 weight.input.on('dblclick', weightEnglishToMetric);
+
                 weight.input.attr(
                     'title',
                     'Double-click to convert pounds to kilograms'
@@ -285,10 +416,7 @@
             }
 
             if (height) {
-                height.input.on('input', function () {
-                    calcBMI();
-                    calcWaistHeightRatio();
-                });
+                height.input.on('input', updateCalculations);
 
                 height.input.on('change', function () {
                     convertHeightComment();
@@ -296,9 +424,11 @@
                 });
 
                 height.input.on('dblclick', heightEnglishToMetric);
+
                 height.input.attr(
                     'title',
-                    'Double-click to convert feet/inches to centimetres'
+                    'Double-click to convert feet/inches to centimetres. ' +
+                    'When blank, the previous height is used for calculations.'
                 );
             }
 
@@ -311,6 +441,7 @@
                 });
 
                 waist.input.on('dblclick', waistEnglishToMetric);
+
                 waist.input.attr(
                     'title',
                     'Double-click to convert inches to centimetres'
@@ -318,7 +449,10 @@
             }
 
             if (bmi) {
-                bmi.input.attr('title', 'Automatically calculated BMI');
+                bmi.input.attr(
+                    'title',
+                    'Automatically calculated BMI'
+                );
             }
 
             if (waistHeight) {
@@ -328,7 +462,7 @@
                 );
             }
 
-            // Calculate initial values if the relevant inputs are available.
+            // Initial calculations also use historical height if HT is blank.
             updateCalculations();
 
             console.info('[OSCAR converter] Initialized:', {
@@ -336,7 +470,8 @@
                 weight: !!weight,
                 bmi: !!bmi,
                 waist: !!waist,
-                waistHeightRatio: !!waistHeight
+                waistHeightRatio: !!waistHeight,
+                priorHeightCm: getPriorHeightCm()
             });
         });
     }
