@@ -2,7 +2,7 @@
 // @name     Preventions PHC
 // @author	 Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  1.2.7
+// @version  1.2.8
 // @description Adds a menu of all the immunization brands available in Canada to AV
 // @grant    none
 // @namespace Phcscript
@@ -101,6 +101,7 @@ var tags = [
 {name:"Flu", value:"FLUVIRAL 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"ID Biomedical Corporation of Quebec", dose:"0.5", units:"mL", route:"IM", din:"02420686"},
 {name:"Flu", value:"FLUZONE High-Dose Quadrivalent 60 micrograms per 0.7 milliliter suspension for injection", manufacture:"Sanofi Pasteur Limited", dose:"0.7", units:"mL", route:"IM", din:"2500523"},
 {name:"Flu", value:"FLUZONE Quadrivalent 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"Sanofi Pasteur Limited", dose:"0.5", units:"mL", route:"IM", din:"2432730"},
+{name:"Flu", value:"FLUZONE Trivalent 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"Sanofi Pasteur Limited", dose:"0.5", units:"mL", route:"IM", din:"2365936"},
 {name:"Flu", value:"INFLUVAC TETRA 15 micrograms per 0.5 milliliter suspension for injection", manufacture:"BGP Pharma ULC", dose:"0.5", units:"mL", route:"IM", din:"2484854"},
 {name:"IPV", value:"IMOVAX Polio 80 units per 0.5 milliliter solution for injection", manufacture:"Sanofi Pasteur Limited", dose:"0.5", units:"mL", route:"SQ", din:"1959042"},
 {name:"JE", value:"IXIARO 6 micrograms per 0.5 milliliter suspension for injection", manufacture:"Valneva Austria GmbH", dose:"0.5", units:"mL", route:"IM", din:"2333279"},
