@@ -1,7 +1,8 @@
+
 // ==UserScript==
 // @name         Avaros Hospital Invoice Helper
 // @namespace    https://app.avaros.ca/
-// @version      2.3.0
+// @version      2.3.1
 // @author       Peter Hutten-Czapski
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=avaros.ca
 // @description  Admission date calculator and hospital billing automation
@@ -157,6 +158,7 @@
         }
 
         if (!value) {
+            indicator.style.display= 'none';
             indicator.textContent =
                 'Waiting for admission date...';
             return;
@@ -168,6 +170,7 @@
         );
 
         if (!match) {
+            indicator.style.display= 'block';
             indicator.textContent =
                 'Unrecognized date: ' + value;
             return;
@@ -185,6 +188,7 @@
             admission.getMonth() !== month ||
             admission.getDate() !== day
         ) {
+            indicator.style.display= 'block';
             indicator.textContent = 'Invalid admission date';
             return;
         }
@@ -200,6 +204,7 @@
         );
 
         if (elapsedDays < 0) {
+            indicator.style.display= 'block';
             indicator.textContent =
                 'Admission date is in the future';
             return;
@@ -207,9 +212,14 @@
 
         const weeks = Math.floor(elapsedDays / 7);
         const days = elapsedDays % 7;
-
-        indicator.textContent =
-            `${weeks} weeks, ${days} days since admission`;
+        indicator.style.display= 'block';
+        if (weeks > 0) {
+            indicator.textContent =
+                `${weeks} weeks, ${days} days since admission`;
+        } else {
+            indicator.textContent =
+                `${days} days since admission`;
+        }
 
         log('Admission date calculated:', {
             date: value,
