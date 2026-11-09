@@ -2,7 +2,7 @@
 // @name     Lab Display Buttons PHC
 // @author   Peter Hutten-Czapski
 // @license  GNU General Public License v3
-// @version  3.8
+// @version  3.8.1
 // @description Macro buttons for AV for rapid entry of common lab comments, and opening related ticklers and billing
 // @namespace Phcscript
 // @grant     none
@@ -279,8 +279,8 @@ var input14=document.createElement("input");
 input14.type="button";
 input14.value="Tickler";
 input14.addEventListener("click", function() {ButtonFunction("Tickler set for this lab/pt");});
-input14.setAttribute("style", "font-size:12px; padding: 2px; margin-right: 3px;");
-input14.setAttribute("title", "Tickler set");
+input14.setAttribute("style", "color:red; font-size:12px; padding: 2px; margin-right: 3px;");
+input14.setAttribute("title", "DOES NOT SET THE TICKLER, just sets comment");
 menuContainer.appendChild(input14);
 
 var input15=document.createElement("input");
